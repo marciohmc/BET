@@ -64,6 +64,10 @@ export const getLogsView = (req: Request, res: Response) => {
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
           Clear History
         </button>
+        <button id="testApiBtn" onclick="openTestModal()" class="px-3.5 py-2 text-xs font-medium text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-600 border border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          Test API
+        </button>
         <button id="refreshBtn" onclick="fetchLogs()" class="px-3.5 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:from-blue-700 active:to-indigo-700 rounded-lg transition-all shadow-md shadow-blue-900/20 flex items-center gap-1.5">
           <svg id="refreshIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 16.5m-5.49-16.5h5v5" /></svg>
           Refresh Now
@@ -166,8 +170,43 @@ export const getLogsView = (req: Request, res: Response) => {
     Cassanova Server • Running Node.js Environment • In-Memory Buffer Cache
   </footer>
 
+  <!-- Modal -->
+  <div id="testApiModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-lg shadow-2xl">
+      <h2 class="text-lg font-semibold text-white mb-4">Test API Configuration</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">API Key</label>
+          <input type="text" id="apiTestKey" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100" placeholder="Enter API Key">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-400 mb-1">Webhook URL</label>
+          <input type="text" id="apiTestWebhook" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100" placeholder="Enter Webhook URL">
+        </div>
+        <div class="flex gap-3 mt-6">
+          <button onclick="runTest()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-sm font-semibold">Run Test</button>
+          <button onclick="closeTestModal()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 py-2 rounded-lg text-sm font-semibold">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script>
+    function openTestModal() {
+      document.getElementById('testApiModal').classList.remove('hidden');
+    }
+    
+    function closeTestModal() {
+      document.getElementById('testApiModal').classList.add('hidden');
+    }
+
+    function runTest() {
+        const key = document.getElementById('apiTestKey').value;
+        const webhook = document.getElementById('apiTestWebhook').value;
+        alert('Test initiated with Key: ' + key + ' and Webhook: ' + webhook + '. (This is a placeholder action)');
+        closeTestModal();
+    }
     let allLogs = [];
     let activeFilter = 'ALL';
     let autoRefreshInterval = null;
