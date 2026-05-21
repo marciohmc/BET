@@ -3,12 +3,16 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
+// Import HTTP logger middleware
+import { httpLoggerMiddleware } from './utils/logger';
+
 // Import routes
 import authRoutes from './routes/auth.routes';
 import gameRoutes from './routes/game.routes';
 import userRoutes from './routes/user.routes';
 import promotionRoutes from './routes/promotion.routes';
 import transactionRoutes from './routes/transaction.routes';
+import logRoutes from './routes/log.routes';
 
 dotenv.config();
 
@@ -40,12 +44,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Apply dynamic HTTP logger middleware
+app.use(httpLoggerMiddleware);
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/games', gameRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/logs', logRoutes);
 
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
