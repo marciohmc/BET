@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth.middleware';
 import Transaction from '../models/Transaction';
 import User from '../models/User';
+import { pixgoService } from '../services/pixgo.service';
 
 export const getUserTransactions = async (req: AuthRequest, res: Response) => {
   try {
@@ -16,6 +17,51 @@ export const getUserTransactions = async (req: AuthRequest, res: Response) => {
   } catch (error) {
     console.error('Get transactions error:', error);
     res.status(500).json({ message: 'Failed to fetch transactions', error });
+  }
+};
+
+export const createPixDeposit = async (req: AuthRequest, res: Response) => {
+  try {
+    const { amount, description } = req.body;
+
+    if (!amount || amount < 10) {
+      return res.status(400).json({ message: 'Amount must be at least 10 BRL' });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // 1. Create a pending transaction in our DB
+    const transaction = new Transaction({
+      userId: req.userId,
+      type: 'deposit',
+      amount,
+      status: 'pending',
+      paymentMethod: 'pix',
+      description: description || 'Pix Deposit',
+    });
+    
+    await transaction.save();
+
+    // 2. Call PixGo API
+    const webhookUrl = `${process.env.APP_URL}/api/webhooks/pixgo`;
+    const pixgoResponse = await pixgoService.createPayment(
+      amount,
+      description || 'Pix Deposit',
+      transaction._id.toString(),
+      webhookUrl
+    );
+
+    res.status(201).json({
+      message: 'Pix payment initiated',
+      transactionId: transaction._id,
+      pixData: pixgoResponse.data,
+    });
+  } catch (error) {
+    console.error('Pix deposit error:', error);
+    res.status(500).json({ message: 'Pix deposit failed', error: error instanceof Error ? error.message : error });
   }
 };
 

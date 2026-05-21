@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 
 const PAYMENT_METHODS = [
+  { id: 'pix', name: 'PIX', icon: '⚡', min: 10, max: 3000 },
   { id: 'credit-card', name: 'Credit/Debit Card', icon: '💳', min: 10, max: 10000 },
   { id: 'crypto', name: 'Cryptocurrency', icon: '₿', min: 20, max: 50000 },
   { id: 'bank-transfer', name: 'Bank Transfer', icon: '🏦', min: 50, max: 100000 },
@@ -21,6 +22,7 @@ export default function DepositPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [pixData, setPixData] = useState<any>(null); // State to store Pix data
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -32,6 +34,7 @@ export default function DepositPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setPixData(null);
 
     const depositAmount = parseFloat(amount);
     const method = PAYMENT_METHODS.find((m) => m.id === selectedMethod);
@@ -56,19 +59,32 @@ export default function DepositPage() {
     setIsLoading(true);
 
     try {
-      const response = await api.transactions.deposit(token, {
-        amount: depositAmount,
-        paymentMethod: method.name,
-      });
-
-      if (response.newBalance !== undefined) {
-        setSuccess(`Deposit successful! Your new balance is $${response.newBalance.toFixed(2)}`);
-        setAmount('');
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 2000);
+      if (selectedMethod === 'pix') {
+        const response = await api.transactions.pixDeposit(token, {
+          amount: depositAmount,
+          description: 'Pix Deposit',
+        });
+        if (response.pixData) {
+          setPixData(response.pixData);
+          setSuccess('Pix QR Code generated! Please scan.');
+        } else {
+          setError(response.message || 'Pix deposit initiation failed');
+        }
       } else {
-        setError(response.message || 'Deposit failed');
+        const response = await api.transactions.deposit(token, {
+          amount: depositAmount,
+          paymentMethod: method.name,
+        });
+
+        if (response.newBalance !== undefined) {
+          setSuccess(`Deposit successful! Your new balance is $${response.newBalance.toFixed(2)}`);
+          setAmount('');
+          setTimeout(() => {
+            router.push('/dashboard');
+          }, 2000);
+        } else {
+          setError(response.message || 'Deposit failed');
+        }
       }
     } catch {
       setError('An error occurred during deposit');
@@ -112,87 +128,106 @@ export default function DepositPage() {
               )}
 
               <form onSubmit={handleDeposit} className="space-y-6">
-                {/* Payment Method Selection */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-4">
-                    Select Payment Method
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    {PAYMENT_METHODS.map((method) => (
-                      <button
-                        key={method.id}
-                        type="button"
-                        onClick={() => setSelectedMethod(method.id)}
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          selectedMethod === method.id
-                            ? 'border-yellow-400 bg-yellow-400/10'
-                            : 'border-gray-600 bg-gray-700/30 hover:border-gray-500'
-                        }`}
-                      >
-                        <div className="text-3xl mb-2">{method.icon}</div>
-                        <div className="text-white font-medium text-sm">{method.name}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Amount Input */}
-                <div>
-                  <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-2">
-                    Deposit Amount
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">
-                      $
-                    </span>
-                    <input
-                      id="amount"
-                      name="amount"
-                      type="number"
-                      step="0.01"
-                      min={selectedPaymentMethod?.min}
-                      max={selectedPaymentMethod?.max}
-                      required
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      className="w-full pl-10 pr-4 py-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white text-xl placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  {selectedPaymentMethod && (
-                    <p className="mt-2 text-sm text-gray-400">
-                      Min: ${selectedPaymentMethod.min} | Max: ${selectedPaymentMethod.max.toLocaleString()}
+                {pixData ? (
+                  <div className="bg-white p-6 rounded-lg text-center space-y-4">
+                    <h3 className="text-gray-900 font-bold text-lg">Scan to Pay via Pix</h3>
+                    <img src={pixData.qr_image_url} alt="Pix QR Code" className="mx-auto w-64 h-64" />
+                    <p className="text-gray-600 text-sm break-all font-mono">
+                      {pixData.qr_code}
                     </p>
-                  )}
-                </div>
-
-                {/* Quick Amount Buttons */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Quick Select
-                  </label>
-                  <div className="grid grid-cols-4 gap-3">
-                    {[25, 50, 100, 500].map((quickAmount) => (
-                      <button
-                        key={quickAmount}
-                        type="button"
-                        onClick={() => setAmount(quickAmount.toString())}
-                        className="py-2 px-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white hover:border-yellow-400 hover:bg-yellow-400/10 transition-all"
-                      >
-                        ${quickAmount}
-                      </button>
-                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setPixData(null)}
+                      className="text-purple-600 font-medium"
+                    >
+                      Back
+                    </button>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    {/* Payment Method Selection */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-4">
+                        Select Payment Method
+                      </label>
+                      <div className="grid grid-cols-2 gap-4">
+                        {PAYMENT_METHODS.map((method) => (
+                          <button
+                            key={method.id}
+                            type="button"
+                            onClick={() => setSelectedMethod(method.id)}
+                            className={`p-4 rounded-lg border-2 transition-all ${
+                              selectedMethod === method.id
+                                ? 'border-yellow-400 bg-yellow-400/10'
+                                : 'border-gray-600 bg-gray-700/30 hover:border-gray-500'
+                            }`}
+                          >
+                            <div className="text-3xl mb-2">{method.icon}</div>
+                            <div className="text-white font-medium text-sm">{method.name}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-4 px-6 bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 font-bold text-lg rounded-lg hover:from-yellow-500 hover:to-yellow-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  {isLoading ? 'Processing...' : `Deposit $${amount || '0.00'}`}
-                </button>
+                    {/* Amount Input */}
+                    <div>
+                      <label htmlFor="amount" className="block text-sm font-medium text-gray-300 mb-2">
+                        Deposit Amount
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl">
+                          $
+                        </span>
+                        <input
+                          id="amount"
+                          name="amount"
+                          type="number"
+                          step="0.01"
+                          min={selectedPaymentMethod?.min}
+                          max={selectedPaymentMethod?.max}
+                          required
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          className="w-full pl-10 pr-4 py-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white text-xl placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all"
+                          placeholder="0.00"
+                        />
+                      </div>
+                      {selectedPaymentMethod && (
+                        <p className="mt-2 text-sm text-gray-400">
+                          Min: ${selectedPaymentMethod.min} | Max: ${selectedPaymentMethod.max.toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Quick Amount Buttons */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Quick Select
+                      </label>
+                      <div className="grid grid-cols-4 gap-3">
+                        {[25, 50, 100, 500].map((quickAmount) => (
+                          <button
+                            key={quickAmount}
+                            type="button"
+                            onClick={() => setAmount(quickAmount.toString())}
+                            className="py-2 px-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white hover:border-yellow-400 hover:bg-yellow-400/10 transition-all"
+                          >
+                            ${quickAmount}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full py-4 px-6 bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 font-bold text-lg rounded-lg hover:from-yellow-500 hover:to-yellow-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    >
+                      {isLoading ? 'Processing...' : `Deposit $${amount || '0.00'}`}
+                    </button>
+                  </>
+                )}
               </form>
             </div>
           </div>

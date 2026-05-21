@@ -162,8 +162,8 @@ export const api = {
       return response.json();
     },
 
-    deposit: async (token: string, data: { amount: number; paymentMethod: string }) => {
-      const response = await fetch(`${API_BASE_URL}/transactions/deposit`, {
+    pixDeposit: async (token: string, data: { amount: number; description?: string }) => {
+      const response = await fetch(`${API_BASE_URL}/transactions/deposit/pix`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
