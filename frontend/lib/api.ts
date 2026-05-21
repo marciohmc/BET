@@ -174,6 +174,18 @@ export const api = {
       return response.json();
     },
 
+    deposit: async (token: string, data: { amount: number; paymentMethod: string }) => {
+      const response = await fetch(`${API_BASE_URL}/transactions/deposit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      return response.json();
+    },
+
     withdraw: async (token: string, data: { amount: number; paymentMethod: string }) => {
       const response = await fetch(`${API_BASE_URL}/transactions/withdrawal`, {
         method: 'POST',
@@ -185,6 +197,11 @@ export const api = {
       });
       return response.json();
     },
+  } as {
+    getAll: (token: string) => Promise<any>;
+    pixDeposit: (token: string, data: { amount: number; description?: string | undefined; }) => Promise<any>;
+    deposit: (token: string, data: { amount: number; paymentMethod: string }) => Promise<any>;
+    withdraw: (token: string, data: { amount: number; paymentMethod: string }) => Promise<any>;
   },
 
   // User endpoints
