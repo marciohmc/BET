@@ -6,7 +6,8 @@ import { useAuth } from '@/lib/auth-context';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, isAuthenticated, refreshUser } = useAuth();
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { user, isAuthenticated, refreshUser, logout } = useAuth();
 
   // Optionally refresh balance periodically
   useEffect(() => {
@@ -47,13 +48,39 @@ export default function Header() {
           {/* Auth/User Section */}
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated && user ? (
-              <div className="flex items-center space-x-4">
-                <div className="text-sm">
-                  <p className="font-bold">{user.username}</p>
-                  <p className="text-yellow-400 font-mono">
-                    R$ {user.balance.toFixed(2)}
-                  </p>
-                </div>
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition-colors"
+                >
+                  <div className="text-sm text-left">
+                    <p className="font-bold">{user.username}</p>
+                    <p className="text-yellow-400 font-mono">
+                      R$ {user.balance.toFixed(2)}
+                    </p>
+                  </div>
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden">
+                    <Link
+                      href="/settings"
+                      className="block px-4 py-3 hover:bg-white/5 transition-colors"
+                      onClick={() => setIsUserMenuOpen(false)}
+                    >
+                      Profile Settings
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="block w-full text-left px-4 py-3 hover:bg-white/5 text-red-400 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <>
