@@ -101,6 +101,9 @@ export const getLogsView = (req: Request, res: Response) => {
         <button onclick="setCategoryFilter('ALL')" id="filter-ALL" class="filter-btn px-3 py-1.5 text-xs rounded-full font-medium bg-indigo-500 text-white border border-indigo-400/20 shadow-lg shadow-indigo-500/15">
           All Logs
         </button>
+        <button onclick="setCategoryFilter('TESTE')" id="filter-TESTE" class="filter-btn px-3 py-1.5 text-xs rounded-full font-medium bg-slate-850 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-colors">
+          API Test
+        </button>
         <button onclick="setCategoryFilter('HTTP')" id="filter-HTTP" class="filter-btn px-3 py-1.5 text-xs rounded-full font-medium bg-slate-850 hover:bg-slate-800 text-slate-300 border border-slate-800 transition-colors">
           HTTP
         </button>
