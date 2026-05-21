@@ -179,15 +179,22 @@ export const getLogsView = (req: Request, res: Response) => {
       <h2 class="text-lg font-semibold text-white mb-4">Test API Configuration</h2>
       <div class="space-y-4">
         <div>
+          <label class="block text-xs text-slate-400 mb-1">Category</label>
+          <select id="apiTestCategory" onchange="updateEndpoints()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+            <option value="">Select Category</option>
+            <option value="auth">Auth</option>
+            <option value="games">Game</option>
+            <option value="logs">Log</option>
+            <option value="promotions">Promotion</option>
+            <option value="transactions">Transaction</option>
+            <option value="users">User</option>
+            <option value="webhooks">Webhook</option>
+          </select>
+        </div>
+        <div>
           <label class="block text-xs text-slate-400 mb-1">API Endpoint</label>
           <select id="apiTestEndpoint" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
-            <option value="/api/auth">Auth</option>
-            <option value="/api/games">Game</option>
-            <option value="/api/logs">Log</option>
-            <option value="/api/promotions">Promotion</option>
-            <option value="/api/transactions">Transaction</option>
-            <option value="/api/users">User</option>
-            <option value="/api/webhooks">Webhook</option>
+            <option value="">Select Endpoint</option>
           </select>
         </div>
         <div>
@@ -208,6 +215,31 @@ export const getLogsView = (req: Request, res: Response) => {
 
   <!-- Scripts -->
   <script>
+    const apiEndpoints = {
+        auth: ['/api/auth/login', '/api/auth/register'],
+        games: ['/api/games/list', '/api/games/play'],
+        logs: ['/api/logs/view', '/api/logs/clear'],
+        promotions: ['/api/promotions/list'],
+        transactions: ['/api/transactions/deposit', '/api/transactions/withdraw'],
+        users: ['/api/users/profile'],
+        webhooks: ['/api/webhooks/receive']
+    };
+
+    function updateEndpoints() {
+        const category = document.getElementById('apiTestCategory').value;
+        const endpointSelect = document.getElementById('apiTestEndpoint');
+        endpointSelect.innerHTML = '<option value="">Select Endpoint</option>';
+        
+        if (category && apiEndpoints[category]) {
+            apiEndpoints[category].forEach(endpoint => {
+                const opt = document.createElement('option');
+                opt.value = endpoint;
+                opt.text = endpoint;
+                endpointSelect.add(opt);
+            });
+        }
+    }
+
     function openTestModal() {
       document.getElementById('testApiModal').classList.remove('hidden');
     }
@@ -220,6 +252,10 @@ export const getLogsView = (req: Request, res: Response) => {
         const endpoint = document.getElementById('apiTestEndpoint').value;
         const key = document.getElementById('apiTestKey').value;
         const webhook = document.getElementById('apiTestWebhook').value;
+        if (!endpoint) {
+            alert('Please select an endpoint.');
+            return;
+        }
         alert('Testing ' + endpoint + ' with Key: ' + key + ' and Webhook: ' + webhook + '. (This is a placeholder action)');
         closeTestModal();
     }
