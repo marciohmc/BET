@@ -64,7 +64,7 @@ export default function Header() {
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-gray-900 border border-gray-800 rounded-lg shadow-xl overflow-hidden">
                     <Link
-                      href="/settings"
+                      href="/dashboard"
                       className="block px-4 py-3 hover:bg-white/5 transition-colors"
                       onClick={() => setIsUserMenuOpen(false)}
                     >
