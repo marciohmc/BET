@@ -13,6 +13,7 @@ import userRoutes from './routes/user.routes';
 import promotionRoutes from './routes/promotion.routes';
 import transactionRoutes from './routes/transaction.routes';
 import logRoutes from './routes/log.routes';
+import webhookRoutes from './routes/webhook.routes';
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/logs', logRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 // Health check
 app.get('/api/health', (req: Request, res: Response) => {
