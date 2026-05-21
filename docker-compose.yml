@@ -39,8 +39,8 @@ services:
       # OPÇÃO 1: MongoDB Local rodando no Docker (Padrão)
       - MONGODB_URI=mongodb://database:27017/cassanova
       # OPÇÃO 2: MongoDB Atlas na Nuvem (Substitua as credenciais de acordo com o MONGODB_ATLAS_GUIDE.md)
-      # - MONGODB_URI=mongodb+srv://cassanova_api_user:SUBSTITUA_PELA_SUA_SENHA@cluster0.xxxx.mongodb.net/cassanova?retryWrites=true&w=majority&appName=Cluster0
-      - JWT_SECRET=your-secret-key-change-in-production-safely-1234
+      # - MONGODB_URI=mongodb+srv://<USER_ATLAS>:<PASSWORD_ATLAS>@cluster-cassanova.xxxx.mongodb.net/cassanova?retryWrites=true&w=majority
+      - JWT_SECRET=Cassanova_987#@!SegurancaTotal_2026_MoraesIT
       - FRONTEND_URL=http://localhost:3000
       - NODE_ENV=development
     depends_on:

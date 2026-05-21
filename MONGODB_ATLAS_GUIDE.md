@@ -78,9 +78,9 @@ Para que a conexão mestre ocorra com êxito em qualquer ambiente do cassino, vo
 1. Substitua `<db_password>` pela **senha mestre altamente segura** que você salvou no **Passo 3**. *(Atenção para remover as tags `<` e `>`)*.
 2. Defina o nome do schema de banco de dados mestre inserindo `/cassanova` antes do caractere de interrogação `?`.
 
-Sua string final integrada para produção/testes deve se parecer exatamente com isto:
+Sua string final integrada de conexão de produção que você configurou deve se parecer exatamente com isto:
 ```text
-mongodb+srv://cassanova_api_user:MinhaSenhaUltraSeguraGenerica123@cluster0.xxxx.mongodb.net/cassanova?retryWrites=true&w=majority&appName=Cluster0
+mongodb+srv://<marciohmc_db_user>:<SEGREDO_ALTAMENTE_SEGURO>@cassanova-prod.roz8deo.mongodb.net/cassanova?retryWrites=true&w=majority&appName=Cassanova-Prod
 ```
 
 ---
@@ -93,8 +93,8 @@ Abra o seu arquivo mestre `docker-compose.yml` e atualize a variável para o con
     # ... configurações anteriores
     environment:
       - PORT=5000
-      - MONGODB_URI=mongodb+srv://cassanova_api_user:MinhaSenhaUltraSeguraGenerica123@cluster0.xxxx.mongodb.net/cassanova?retryWrites=true&w=majority&appName=Cluster0
-      - JWT_SECRET=your-secret-key-change-in-production-safely-1234
+      - MONGODB_URI=mongodb+srv://<marciohmc_db_user>:<SEGREDO_ALTAMENTE_SEGURO>@cassanova-prod.roz8deo.mongodb.net/cassanova?retryWrites=true&w=majority&appName=Cassanova-Prod
+      - JWT_SECRET=Cassanova_987#@!SegurancaTotal_2026_MoraesIT
       - FRONTEND_URL=http://localhost:3000
       - NODE_ENV=development
 ```
@@ -109,5 +109,5 @@ No painel de deploy do Render (Etapa 2 descrita no guia oficial do cassino):
 2. Clique na aba **"Environment"** (Variáveis de Ambiente).
 3. Adicione ou edite a linha correspondente:
    - **Key:** `MONGODB_URI`
-   - **Value:** `mongodb+srv://cassanova_api_user:MinhaSenhaUltraSeguraGenerica123@cluster0.xxxx.mongodb.net/cassanova?retryWrites=true&w=majority&appName=Cluster0`
+   - **Value:** `mongodb+srv://<marciohmc_db_user>:<SEGREDO_ALTAMENTE_SEGURO>@cassanova-prod.roz8deo.mongodb.net/cassanova?retryWrites=true&w=majority&appName=Cassanova-Prod`
 4. Clique em **"Save Changes"**. O Render reiniciará sua aplicação automaticamente e ela se conectará de forma transparente, limpa e segura ao cluster de alta imunidade de dados que criamos.
