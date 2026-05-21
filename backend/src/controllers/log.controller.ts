@@ -1,6 +1,12 @@
 import { Request, Response } from 'express';
 import { getLogs, clearLogs, addLog } from '../utils/logger';
 
+export const addTestLogHandler = (req: Request, res: Response) => {
+  const { endpoint, key, webhook } = req.body;
+  addLog('TESTE', `Test execution on ${endpoint}`, { key, webhook });
+  res.json({ success: true, message: 'Test log recorded' });
+};
+
 export const getLogsJSON = (req: Request, res: Response) => {
   res.json(getLogs());
 };
@@ -248,7 +254,7 @@ export const getLogsView = (req: Request, res: Response) => {
       document.getElementById('testApiModal').classList.add('hidden');
     }
 
-    function runTest() {
+    async function runTest() {
         const endpoint = document.getElementById('apiTestEndpoint').value;
         const key = document.getElementById('apiTestKey').value;
         const webhook = document.getElementById('apiTestWebhook').value;
@@ -256,7 +262,22 @@ export const getLogsView = (req: Request, res: Response) => {
             alert('Please select an endpoint.');
             return;
         }
-        alert('Testing ' + endpoint + ' with Key: ' + key + ' and Webhook: ' + webhook + '. (This is a placeholder action)');
+        
+        try {
+            const res = await fetch('/api/logs', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ endpoint, key, webhook })
+            });
+            if (res.ok) {
+                alert('Test log recorded successfully!');
+                fetchLogs();
+            } else {
+                alert('Failed to record test log.');
+            }
+        } catch (err) {
+            console.error('Error recording test log:', err);
+        }
         closeTestModal();
     }
     let allLogs = [];
