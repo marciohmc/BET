@@ -263,7 +263,7 @@ export default function GamesPage() {
             <span className="text-6xl block mb-4">🎰</span>
             <h3 className="text-xl font-bold text-white mb-2">No Games Found</h3>
             <p className="text-gray-400 max-w-md mx-auto">
-              We couldn't find any games matching your current selection. Try resetting filters or search query!
+              {"We couldn't find any games matching your current selection. Try resetting filters or search query!"}
             </p>
             <button
               onClick={() => {
