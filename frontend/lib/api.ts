@@ -1,3 +1,5 @@
+import { Transaction } from '../types';
+
 const getApiBaseUrl = () => {
   // If in browser, and NEXT_PUBLIC_API_URL is empty or points to the current host,
   // use the relative path '/api'. Next.js rewrites will proxy this dynamically to BACKEND_URL.
@@ -198,10 +200,10 @@ export const api = {
       return response.json();
     },
   } as {
-    getAll: (token: string) => Promise<any>;
-    pixDeposit: (token: string, data: { amount: number; description?: string | undefined; }) => Promise<any>;
-    deposit: (token: string, data: { amount: number; paymentMethod: string }) => Promise<any>;
-    withdraw: (token: string, data: { amount: number; paymentMethod: string }) => Promise<any>;
+    getAll: (token: string) => Promise<unknown>;
+    pixDeposit: (token: string, data: { amount: number; description?: string | undefined; }) => Promise<unknown>;
+    deposit: (token: string, data: { amount: number; paymentMethod: string }) => Promise<unknown>;
+    withdraw: (token: string, data: { amount: number; paymentMethod: string }) => Promise<unknown>;
   },
 
   // User endpoints
