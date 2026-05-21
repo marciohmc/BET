@@ -176,6 +176,18 @@ export const getLogsView = (req: Request, res: Response) => {
       <h2 class="text-lg font-semibold text-white mb-4">Test API Configuration</h2>
       <div class="space-y-4">
         <div>
+          <label class="block text-xs text-slate-400 mb-1">API Endpoint</label>
+          <select id="apiTestEndpoint" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
+            <option value="/api/auth">Auth</option>
+            <option value="/api/games">Game</option>
+            <option value="/api/logs">Log</option>
+            <option value="/api/promotions">Promotion</option>
+            <option value="/api/transactions">Transaction</option>
+            <option value="/api/users">User</option>
+            <option value="/api/webhooks">Webhook</option>
+          </select>
+        </div>
+        <div>
           <label class="block text-xs text-slate-400 mb-1">API Key</label>
           <input type="text" id="apiTestKey" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100" placeholder="Enter API Key">
         </div>
@@ -202,9 +214,10 @@ export const getLogsView = (req: Request, res: Response) => {
     }
 
     function runTest() {
+        const endpoint = document.getElementById('apiTestEndpoint').value;
         const key = document.getElementById('apiTestKey').value;
         const webhook = document.getElementById('apiTestWebhook').value;
-        alert('Test initiated with Key: ' + key + ' and Webhook: ' + webhook + '. (This is a placeholder action)');
+        alert('Testing ' + endpoint + ' with Key: ' + key + ' and Webhook: ' + webhook + '. (This is a placeholder action)');
         closeTestModal();
     }
     let allLogs = [];
