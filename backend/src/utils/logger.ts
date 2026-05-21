@@ -10,6 +10,8 @@ export interface LogEntry {
   duration?: number;
   message: string;
   details?: any;
+  key?: string;
+  webhook?: string;
 }
 
 const MAX_LOGS = 1000;
@@ -50,13 +52,14 @@ export const addLog = (
   logs.push(logEntry);
 
   // Still log to stdout for real output
-  const levelColor: { [key: string]: string } = {
+  const levelColors: { [key: string]: string } = {
     HTTP: '\x1b[36mHTTP\x1b[0m', // Cyan
     INFO: '\x1b[32mINFO\x1b[0m', // Green
     WARN: '\x1b[33mWARN\x1b[0m', // Yellow
     ERROR: '\x1b[31mERROR\x1b[0m', // Red
     TESTE: '\x1b[35mTESTE\x1b[0m', // Magenta
-  }[category];
+  };
+  const levelColor = levelColors[category];
 
   console.log(`[${timestamp}] [${levelColor}] ${message} ${extra.statusCode ? `(status: ${extra.statusCode})` : ''}`);
 };
