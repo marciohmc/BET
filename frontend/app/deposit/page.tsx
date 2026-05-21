@@ -14,6 +14,11 @@ const PAYMENT_METHODS = [
   { id: 'e-wallet', name: 'E-Wallet', icon: '💰', min: 10, max: 5000 },
 ];
 
+interface PixData {
+  qr_image_url: string;
+  qr_code: string;
+}
+
 export default function DepositPage() {
   const router = useRouter();
   const { user, token, isAuthenticated } = useAuth();
@@ -22,7 +27,7 @@ export default function DepositPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [pixData, setPixData] = useState<any>(null); // State to store Pix data
+  const [pixData, setPixData] = useState<PixData | null>(null); // State to store Pix data
 
   useEffect(() => {
     if (!isAuthenticated) {
