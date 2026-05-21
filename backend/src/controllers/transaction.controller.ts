@@ -34,7 +34,7 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
     }
 
     // 1. Create a pending transaction in our DB
-    const transaction = new Transaction({
+    const transaction: any = new Transaction({
       userId: req.userId,
       type: 'deposit',
       amount,
@@ -57,7 +57,7 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
     res.status(201).json({
       message: 'Pix payment initiated',
       transactionId: transaction._id,
-      pixData: pixgoResponse.data,
+      pixData: (pixgoResponse as any).data,
     });
   } catch (error) {
     console.error('Pix deposit error:', error);
