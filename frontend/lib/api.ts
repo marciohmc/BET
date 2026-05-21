@@ -1,4 +1,13 @@
 const getApiBaseUrl = () => {
+  // If in browser, and NEXT_PUBLIC_API_URL is empty or points to the current host,
+  // use the relative path '/api'. Next.js rewrites will proxy this dynamically to BACKEND_URL.
+  if (typeof window !== 'undefined') {
+    const nextPublicUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!nextPublicUrl || nextPublicUrl.includes(window.location.hostname)) {
+      return '/api';
+    }
+  }
+
   let url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
   if (url && !url.endsWith('/api') && !url.endsWith('/api/')) {
     url = url.endsWith('/') ? `${url}api` : `${url}/api`;
