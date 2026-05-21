@@ -200,10 +200,10 @@ export const api = {
       return response.json();
     },
   } as {
-    getAll: (token: string) => Promise<unknown>;
-    pixDeposit: (token: string, data: { amount: number; description?: string | undefined; }) => Promise<unknown>;
-    deposit: (token: string, data: { amount: number; paymentMethod: string }) => Promise<unknown>;
-    withdraw: (token: string, data: { amount: number; paymentMethod: string }) => Promise<unknown>;
+    getAll: (token: string) => Promise<Transaction[]>;
+    pixDeposit: (token: string, data: { amount: number; description?: string | undefined; }) => Promise<{ qr_image_url: string; qr_code: string }>;
+    deposit: (token: string, data: { amount: number; paymentMethod: string }) => Promise<{ transactionId: string }>;
+    withdraw: (token: string, data: { amount: number; paymentMethod: string }) => Promise<{ transactionId: string }>;
   },
 
   // User endpoints
