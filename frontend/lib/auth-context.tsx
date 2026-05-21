@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (token: string, user: User) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,8 +25,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
+      refreshUser(); // Refresh on load
     }
   }, []);
+
+  const refreshUser = async () => {
+    const storedToken = localStorage.getItem('token');
+    if (!storedToken) return;
+    try {
+      const response = await fetch('/api/users/profile', {
+        headers: {
+          'Authorization': `Bearer ${storedToken}`
+        }
+      });
+      if (response.ok) {
+        const newUser = await response.json();
+        setUser(newUser);
+        localStorage.setItem('user', JSON.stringify(newUser));
+      }
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+    }
+  };
 
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
@@ -49,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAuthenticated: !!token,
+        refreshUser,
       }}
     >
       {children}

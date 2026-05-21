@@ -1,10 +1,21 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/auth-context';
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, refreshUser } = useAuth();
+
+  // Optionally refresh balance periodically
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshUser();
+      const interval = setInterval(refreshUser, 30000); // 30 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, refreshUser]);
 
   return (
     <header className="bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 text-white sticky top-0 z-50 shadow-lg">
@@ -33,20 +44,33 @@ export default function Header() {
             </Link>
           </nav>
 
-          {/* Auth Buttons */}
+          {/* Auth/User Section */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/login"
-              className="px-4 py-2 rounded-lg hover:bg-white/10 transition-colors font-medium"
-            >
-              Log In
-            </Link>
-            <Link
-              href="/register"
-              className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 font-bold hover:from-yellow-500 hover:to-yellow-700 transition-all transform hover:scale-105"
-            >
-              Sign Up
-            </Link>
+            {isAuthenticated && user ? (
+              <div className="flex items-center space-x-4">
+                <div className="text-sm">
+                  <p className="font-bold">{user.username}</p>
+                  <p className="text-yellow-400 font-mono">
+                    R$ {user.balance.toFixed(2)}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-4 py-2 rounded-lg hover:bg-white/10 transition-colors font-medium"
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 font-bold hover:from-yellow-500 hover:to-yellow-700 transition-all transform hover:scale-105"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -80,15 +104,26 @@ export default function Header() {
               <Link href="/vip" className="hover:text-yellow-400 transition-colors">
                 VIP
               </Link>
-              <Link href="/login" className="hover:text-yellow-400 transition-colors">
-                Log In
-              </Link>
-              <Link
-                href="/register"
-                className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 font-bold text-center"
-              >
-                Sign Up
-              </Link>
+              {isAuthenticated && user ? (
+                <div className="px-4 py-2 bg-white/10 rounded-lg">
+                  <p className="font-bold">{user.username}</p>
+                  <p className="text-yellow-400 font-mono">
+                    R$ {user.balance.toFixed(2)}
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <Link href="/login" className="hover:text-yellow-400 transition-colors">
+                    Log In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-6 py-2 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 font-bold text-center"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         )}
