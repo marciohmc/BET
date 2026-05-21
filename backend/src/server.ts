@@ -14,7 +14,26 @@ dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/cassanova';
+
+// Sanitize and validate MONGODB_URI safely
+let MONGODB_URI = process.env.MONGODB_URI;
+
+if (MONGODB_URI) {
+  // Trim white spaces and strip enclosing single or double quotes
+  MONGODB_URI = MONGODB_URI.trim().replace(/^['"]|['"]$/g, '');
+}
+
+// Treat "undefined", "null" strings, or empty strings as missing/undefined
+if (!MONGODB_URI || MONGODB_URI === 'undefined' || MONGODB_URI === 'null' || MONGODB_URI === '') {
+  MONGODB_URI = 'mongodb://localhost:27017/cassanova';
+}
+
+// Ensure the connection URL starts with correct scheme
+if (!MONGODB_URI.startsWith('mongodb://') && !MONGODB_URI.startsWith('mongodb+srv://')) {
+  console.warn(`WARNING: Invalid MongoDB URI prefix: "${MONGODB_URI}".`);
+  console.warn(`Expected connection string to start with 'mongodb://' or 'mongodb+srv://'. Using default local fall-back.`);
+  MONGODB_URI = 'mongodb://localhost:27017/cassanova';
+}
 
 // Middleware
 app.use(cors());
