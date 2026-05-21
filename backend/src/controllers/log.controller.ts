@@ -385,6 +385,7 @@ export const getLogsView = (req: Request, res: Response) => {
         if (log.category === 'HTTP') badgeClass = 'text-cyan-400 bg-cyan-950/40 border border-cyan-800/30';
         else if (log.category === 'INFO') badgeClass = 'text-emerald-400 bg-emerald-950/40 border border-emerald-800/30';
         else if (log.category === 'WARN') badgeClass = 'text-yellow-400 bg-yellow-950/40 border border-yellow-800/30';
+        else if (log.category === 'TESTE') badgeClass = 'text-purple-400 bg-purple-950/40 border border-purple-800/30';
         else if (log.category === 'ERROR' || (log.statusCode && log.statusCode >= 400)) {
           badgeClass = 'text-red-400 bg-red-950/40 border border-red-800/30';
         }

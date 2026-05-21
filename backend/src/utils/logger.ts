@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 export interface LogEntry {
   id: string;
   timestamp: string;
-  category: 'HTTP' | 'INFO' | 'WARN' | 'ERROR';
+  category: 'HTTP' | 'INFO' | 'WARN' | 'ERROR' | 'TESTE';
   method?: string;
   url?: string;
   statusCode?: number;
@@ -27,7 +27,7 @@ export const getLogs = () => {
 };
 
 export const addLog = (
-  category: 'HTTP' | 'INFO' | 'WARN' | 'ERROR',
+  category: 'HTTP' | 'INFO' | 'WARN' | 'ERROR' | 'TESTE',
   message: string,
   extra: Partial<Omit<LogEntry, 'id' | 'timestamp' | 'category' | 'message'>> = {}
 ) => {
@@ -50,11 +50,12 @@ export const addLog = (
   logs.push(logEntry);
 
   // Still log to stdout for real output
-  const levelColor = {
+  const levelColor: { [key: string]: string } = {
     HTTP: '\x1b[36mHTTP\x1b[0m', // Cyan
     INFO: '\x1b[32mINFO\x1b[0m', // Green
     WARN: '\x1b[33mWARN\x1b[0m', // Yellow
     ERROR: '\x1b[31mERROR\x1b[0m', // Red
+    TESTE: '\x1b[35mTESTE\x1b[0m', // Magenta
   }[category];
 
   console.log(`[${timestamp}] [${levelColor}] ${message} ${extra.statusCode ? `(status: ${extra.statusCode})` : ''}`);
