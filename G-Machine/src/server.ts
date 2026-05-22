@@ -122,6 +122,7 @@ io.on('connection', (socket) => {
   });
 });
 
-httpServer.listen(port, () => {
+httpServer.listen(port as number, '0.0.0.0', () => {
   console.log(`🚀 Cassanova G-Machine (RGS) rodando na porta ${port}`);
+  console.log(`--- Configurado para aceitar conexões via Socket.io com CORS habilitado ---`);
 });

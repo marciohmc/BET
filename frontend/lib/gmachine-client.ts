@@ -4,13 +4,21 @@ class GMachineClient {
   private socket: Socket | null = null;
   private url = process.env.NEXT_PUBLIC_G_MACHINE_URL || 'http://localhost:3001';
 
+  public getUrl() {
+    return this.url;
+  }
+
   public connect(token: string, gameId: string) {
+    console.log('[G-MACHINE] Tentando conectar ao URL:', this.url);
     if (this.socket) {
       this.socket.disconnect();
     }
 
     this.socket = io(this.url, {
-      transports: ['websocket'], // Forçar websocket para menor latência
+      // Remover transports restrito para permitir fallback automático e handshake inicial via polling
+      // que é mais resiliente em arquiteturas de proxy como Render/Heroku
+      reconnectionAttempts: 5,
+      timeout: 10000
     });
 
     this.socket.on('connect', () => {
@@ -20,6 +28,14 @@ class GMachineClient {
 
     this.socket.on('error', (msg: string) => {
       console.error('[G-MACHINE] Erro:', msg);
+    });
+
+    this.socket.on('connect_error', (err) => {
+      console.error('[G-MACHINE] Erro de conexão detalhado:', {
+        message: err.message,
+        url: this.url,
+        stack: err.stack
+      });
     });
 
     return this.socket;

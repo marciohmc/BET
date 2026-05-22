@@ -28,6 +28,18 @@ export function useGame(gameId: string) {
   useEffect(() => {
     if (!token) return;
 
+    const checkConnection = async () => {
+      try {
+        const response = await fetch(`${gMachineClient.getUrl()}/health`);
+        const data = await response.json();
+        console.log('[G-MACHINE] Health check success:', data);
+      } catch (err) {
+        console.warn('[G-MACHINE] Health check failed (this might be normal if /health is not enabled or CORS differs):', err);
+      }
+    };
+
+    checkConnection();
+
     const socket = gMachineClient.connect(token, gameId);
 
     socket.on('connect', () => {
