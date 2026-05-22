@@ -76,7 +76,7 @@ export default function TigerGamePage() {
 
           {/* Winning Banner */}
           <AnimatePresence>
-            {lastResult?.totalWin > 0 && !isSpinning && (
+            {lastResult && lastResult.totalWin > 0 && !isSpinning && (
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
