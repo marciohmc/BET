@@ -158,9 +158,11 @@ export const createWithdrawal = async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
+    /* Temporary disable KYC check
     if (user.kycStatus !== 'verified') {
       return res.status(400).json({ message: 'KYC verification required for withdrawals' });
     }
+    */
 
     const balanceBefore = user.balance;
     const balanceAfter = balanceBefore - amount;
@@ -218,10 +220,11 @@ export const createPixWithdrawal = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Security check: KYC
+    /* Temporary disable KYC check
     if (user.kycStatus !== 'verified') {
       return res.status(400).json({ message: 'KYC verification required for withdrawals' });
     }
+    */
 
     if (user.balance < numericAmount) {
       return res.status(400).json({ message: 'Insufficient balance' });

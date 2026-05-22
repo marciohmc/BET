@@ -51,10 +51,12 @@ export default function WithdrawPage() {
       return;
     }
 
+    /* Temporary disable KYC check
     if (user.kycStatus !== 'verified') {
       setError('KYC verification is required for withdrawals. Please complete your verification first.');
       return;
     }
+    */
 
     if (withdrawAmount < method.min) {
       setError(`Minimum withdrawal for ${method.name} is $${method.min}`);
@@ -152,7 +154,7 @@ export default function WithdrawPage() {
                 </div>
               )}
 
-              {/* KYC Warning */}
+              {/* KYC Warning - Temporarily disabled
               {user.kycStatus !== 'verified' && (
                 <div className="bg-yellow-500/20 border border-yellow-500 text-yellow-200 px-4 py-3 rounded-lg mb-6">
                   <p className="font-semibold mb-1">⚠️ KYC Verification Required</p>
@@ -161,6 +163,7 @@ export default function WithdrawPage() {
                   </p>
                 </div>
               )}
+              */}
 
               <form onSubmit={handleWithdraw} className="space-y-6">
                 {/* Payment Method Selection */}
@@ -275,7 +278,7 @@ export default function WithdrawPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isLoading || user.kycStatus !== 'verified'}
+                  disabled={isLoading}
                   className="w-full py-4 px-6 bg-gradient-to-r from-blue-400 to-blue-600 text-white font-bold text-lg rounded-lg hover:from-blue-500 hover:to-blue-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                 >
                   {isLoading ? 'Processing...' : `Withdraw $${amount || '0.00'}`}
@@ -292,7 +295,7 @@ export default function WithdrawPage() {
               <div className="text-3xl font-bold">${user.balance.toFixed(2)}</div>
             </div>
 
-            {/* KYC Status */}
+            {/* KYC Status - Temporarily disabled
             <div className={`bg-gradient-to-br ${user.kycStatus === 'verified' ? 'from-green-500 to-green-700' : 'from-yellow-500 to-yellow-700'} rounded-xl p-6 text-white`}>
               <div className="text-sm opacity-90 mb-1">KYC Status</div>
               <div className="text-2xl font-bold capitalize">{user.kycStatus}</div>
@@ -300,6 +303,7 @@ export default function WithdrawPage() {
                 <p className="text-sm mt-2 opacity-90">Verification required for withdrawals</p>
               )}
             </div>
+            */}
 
             {/* Withdrawal Info */}
             <div className="bg-gray-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6">

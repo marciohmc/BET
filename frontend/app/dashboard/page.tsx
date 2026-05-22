@@ -124,7 +124,7 @@ export default function DashboardPage() {
             <div className="text-3xl font-bold capitalize">{user.vipLevel}</div>
           </div>
 
-          {/* KYC Status Card */}
+          {/* KYC Status Card - Temporarily disabled
           <div className={`bg-gradient-to-br ${user.kycStatus === 'verified' ? 'from-blue-500 to-blue-700' : 'from-gray-500 to-gray-700'} rounded-xl p-6 text-white`}>
             <div className="flex items-center justify-between mb-2">
               <span className="opacity-90">KYC Status</span>
@@ -134,6 +134,7 @@ export default function DashboardPage() {
             </div>
             <div className="text-2xl font-bold capitalize">{user.kycStatus}</div>
           </div>
+          */}
         </div>
 
         {/* Quick Actions */}
@@ -201,6 +202,7 @@ export default function DashboardPage() {
             </div>
           </Link>
 
+          {/* KYC Verification - Temporarily disabled
           <Link
             href="/kyc"
             className="bg-gray-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-yellow-400 transition-all transform hover:scale-105"
@@ -215,6 +217,7 @@ export default function DashboardPage() {
               </div>
             </div>
           </Link>
+          */}
 
           <Link
             href="/settings"
