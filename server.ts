@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import next from 'next';
 import { createBackendApp } from './backend/src/app';
-import { setupGMachine } from './g-machine/src/index';
+import { setupGMachine } from './gmachine/src/index';
 
 dotenv.config();
 
