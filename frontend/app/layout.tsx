@@ -9,11 +9,13 @@ export const metadata: Metadata = {
   description: "Join Cassanova Casino for the best online gaming experience. Get 200% bonus up to $500 + 100 free spins. Play 1000+ slots, table games, and live dealer games.",
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
       <body className="antialiased">

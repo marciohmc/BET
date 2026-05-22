@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, RotateCcw, ShieldCheck, Coins, Trophy, AlertTriangle } from 'lucide-react';
+import { Play, RotateCcw, ShieldCheck, Coins, Trophy } from 'lucide-react';
 import { useAuth } from '@/lib/auth-context';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +17,7 @@ const SYMBOL_MAP: Record<string, string> = {
   orange: '🍊'
 };
 
-const GM_URL = 'http://localhost:6000';
+const GM_URL = process.env.NEXT_PUBLIC_GM_URL || ''; // Empty string means relative to current host
 
 export default function TigerGame() {
   const { user, updateBalance } = useAuth();
@@ -28,8 +28,8 @@ export default function TigerGame() {
   const [bet, setBet] = useState(1);
   const [nonce, setNonce] = useState(0);
   const [serverSeedHash, setServerSeedHash] = useState('');
-  const [clientSeed, setClientSeed] = useState('cassanova-player');
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const [clientSeed] = useState('cassanova-player');
+  // Removed unused feedback state
 
   useEffect(() => {
     const newSocket = io(GM_URL);
@@ -57,12 +57,6 @@ export default function TigerGame() {
         if (data.newBalance !== undefined) {
           updateBalance(data.newBalance);
         }
-        
-        if (data.win > 0) {
-          setFeedback(`Você ganhou R$ ${data.win.toFixed(2)}!`);
-        } else {
-          setFeedback(null);
-        }
       }, 800);
     });
 
@@ -81,7 +75,6 @@ export default function TigerGame() {
 
     setIsSpinning(true);
     setWin(0);
-    setFeedback(null);
     
     socket.emit('spin', {
       userId: user.id,
