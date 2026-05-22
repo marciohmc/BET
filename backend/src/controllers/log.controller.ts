@@ -319,64 +319,63 @@ export const getLogsView = (req: Request, res: Response) => {
     async function runDiagnostics() {
       document.getElementById('diagnosticsModal').classList.remove('hidden');
       const content = document.getElementById('diagnosticsContent');
-      content.innerHTML = `
+      content.innerHTML = \`
         <div class="flex items-center justify-center py-10">
           <svg class="w-8 h-8 text-indigo-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 16.5m-5.49-16.5h5v5" /></svg>
           <span class="ml-3 text-slate-400">Pinging server infrastructure...</span>
         </div>
-      `;
+      \`;
 
       try {
         const res = await fetch('/api/diagnostics');
         const data = await res.json();
         
-        let html = '<div class="space-y-6">';
+        let htmlSnippet = '<div class="space-y-6">';
         
         // Services Section
-        html += '<div><h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Service Health</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
-        for (const [key, svc] of Object.entries(data.services)) {
+        htmlSnippet += '<div><h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Service Health</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
+        for (const [key, svc] of Object.entries(data.services || {})) {
           const isOk = svc.status === 'OK';
-          const iconColor = isOk ? 'text-emerald-400' : 'text-red-400';
           const bgColor = isOk ? 'bg-emerald-500/5' : 'bg-red-500/5';
           const borderColor = isOk ? 'border-emerald-500/20' : 'border-red-500/20';
           
-          html += `
-            <div class="${bgColor} ${borderColor} border rounded-lg p-3">
+          htmlSnippet += \`
+            <div class="\${bgColor} \${borderColor} border rounded-lg p-3">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-slate-200 capitalize">${svc.name || key}</span>
-                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${isOk ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">${svc.status}</span>
+                <span class="text-sm font-medium text-slate-200 capitalize">\${svc.name || key}</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded \${isOk ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">\${svc.status}</span>
               </div>
               <div class="mt-2 text-xs text-slate-400">
-                ${svc.state ? `State: <span class="text-slate-300">${svc.state}</span>` : ''}
-                ${svc.url ? `<div class="truncate mt-1 opacity-60">Endpoint: ${svc.url}</div>` : ''}
-                ${svc.message ? `<div class="text-red-400 mt-1">${svc.message}</div>` : ''}
+                \${svc.state ? "State: <span class=\\"text-slate-300\\">" + svc.state + "</span>" : ""}
+                \${svc.url ? "<div class=\\"truncate mt-1 opacity-60\\">Endpoint: " + svc.url + "</div>" : ""}
+                \${svc.message ? "<div class=\\"text-red-400 mt-1\\">" + svc.message + "</div>" : ""}
               </div>
             </div>
-          `;
+          \`;
         }
-        html += '</div></div>';
+        htmlSnippet += '</div></div>';
 
         // Environment Section
-        html += '<div><h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Environment Config</h3><div class="bg-slate-950/50 border border-slate-800 rounded-lg p-3 font-mono-logs text-[11px] grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">';
-        for (const [key, val] of Object.entries(data.environment)) {
+        htmlSnippet += '<div><h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Environment Config</h3><div class="bg-slate-950/50 border border-slate-800 rounded-lg p-3 font-mono-logs text-[11px] grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">';
+        for (const [key, val] of Object.entries(data.environment || {})) {
           const isConfigured = val === 'Configured' || (key === 'NODE_ENV' && val);
-          html += `
+          htmlSnippet += \`
             <div class="flex items-center justify-between p-1">
-              <span class="text-slate-500">${key}</span>
-              <span class="${isConfigured ? 'text-emerald-500' : 'text-amber-500'}">${val || 'Not Set'}</span>
+              <span class="text-slate-500">\${key}</span>
+              <span class="\${isConfigured ? 'text-emerald-500' : 'text-amber-500'}">\${val || 'Not Set'}</span>
             </div>
-          `;
+          \`;
         }
-        html += '</div></div>';
+        htmlSnippet += '</div></div>';
 
-        html += '</div>';
-        content.innerHTML = html;
+        htmlSnippet += '</div>';
+        content.innerHTML = htmlSnippet;
       } catch (err) {
-        content.innerHTML = `
+        content.innerHTML = \`
           <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
             <span class="text-red-400 text-sm">Failed to connect to Diagnostics API. Check if server is running.</span>
           </div>
-        `;
+        \`;
       }
     }
 
