@@ -16,6 +16,7 @@ import promotionRoutes from './routes/promotion.routes';
 import transactionRoutes from './routes/transaction.routes';
 import logRoutes from './routes/log.routes';
 import webhookRoutes from './routes/webhook.routes';
+import gmachineRoutes from './routes/gmachine.routes';
 
 dotenv.config();
 
@@ -62,6 +63,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/logs', logRoutes);
+app.use('/api/gmachine', gmachineRoutes);
 // Note: Webhooks are mounted earlier for raw body support
 
 // Swagger Documentation
