@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import axios from 'axios';
 
 export const getDiagnostics = async (req: Request, res: Response) => {
   const diagnostics: any = {
