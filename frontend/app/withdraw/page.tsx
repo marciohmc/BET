@@ -111,7 +111,7 @@ export default function WithdrawPage() {
       } else {
         setError(response.message || 'Withdrawal failed');
       }
-    } catch (err: any) {
+    } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred during withdrawal');
     } finally {
       setIsLoading(false);

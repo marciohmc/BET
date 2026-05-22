@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 
@@ -138,6 +137,8 @@ export default function DepositPage() {
                   <div className="bg-white p-6 rounded-lg text-center space-y-4">
                     <h3 className="text-gray-900 font-bold text-lg">Scan to Pay via Pix</h3>
                     <div className="relative mx-auto w-64 h-64">
+                      {/* Using standard img for external QR images simplifies things for this use case */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={pixData.qr_image_url} 
                         alt="Pix QR Code" 

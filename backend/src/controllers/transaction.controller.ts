@@ -260,14 +260,14 @@ export const createPixWithdrawal = async (req: AuthRequest, res: Response) => {
         numericAmount,
         pixKey,
         pixKeyType,
-        transaction._id.toString()
+        (transaction as any)._id.toString()
       );
 
       res.status(201).json({
         message: 'Withdrawal processed',
-        transactionId: transaction._id,
+        transactionId: (transaction as any)._id,
         newBalance: updatedUser.balance,
-        pixgoStatus: pixgoResponse.status
+        pixgoStatus: (pixgoResponse as any).status
       });
     } catch (payoutError) {
       console.error('PixGo Payout API error:', payoutError);
@@ -275,7 +275,7 @@ export const createPixWithdrawal = async (req: AuthRequest, res: Response) => {
       // or mark for manual review. For now, we'll keep it pending for manual correction.
       res.status(201).json({
         message: 'Withdrawal request recorded (API Delay)',
-        transactionId: transaction._id,
+        transactionId: (transaction as any)._id,
         newBalance: updatedUser.balance,
         warning: 'The request was saved but execution via PixGo failed. Our support will review it.'
       });
