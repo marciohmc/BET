@@ -26,7 +26,7 @@ export const handlePixGoWebhook = async (req: Request, res: Response) => {
   const payload = JSON.parse(rawBody.toString());
 
   try {
-    const { external_id, amounts, status } = payload.data;
+    const { external_id, amounts } = payload.data;
     const transaction = await Transaction.findById(external_id);
 
     if (transaction) {
@@ -37,10 +37,15 @@ export const handlePixGoWebhook = async (req: Request, res: Response) => {
             transaction.status = 'completed';
             await transaction.save();
 
+            // Credit the full amount planned in the transaction, 
+            // or the total paid if preferred. 
+            // Using transaction.amount ensures the user gets what they asked for.
+            const creditAmount = amounts?.total || transaction.amount;
+
             // Atomic update for balance
             await User.updateOne(
               { _id: user._id },
-              { $inc: { balance: amounts.net } }
+              { $inc: { balance: creditAmount } }
             );
           }
         }

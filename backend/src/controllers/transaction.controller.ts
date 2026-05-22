@@ -61,10 +61,17 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
           webhookUrl
         );
 
+        // Handle both possible response formats from PixGo
+        const pixData = (pixgoResponse as any).data || pixgoResponse;
+
         res.status(201).json({
           message: 'Pix payment initiated',
           transactionId: transaction._id,
-          pixData: (pixgoResponse as any).data,
+          pixData: {
+            qr_code: pixData.qr_code,
+            qr_image_url: pixData.qr_image_url,
+            payment_id: pixData.payment_id
+          },
         });
     } catch (apiError) {
         console.error('PixGo API error (detailed):', apiError);
