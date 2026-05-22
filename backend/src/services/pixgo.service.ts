@@ -23,6 +23,38 @@ export const pixgoService = {
 
     return response.json();
   },
+
+  checkStatus: async (paymentId: string) => {
+    const response = await fetch(`https://pixgo.org/api/v1/payment/${paymentId}/status`, {
+      method: 'GET',
+      headers: {
+        'X-API-Key': process.env.PIXGO_API_KEY as string,
+      },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`PixGo API error: ${JSON.stringify(errorData)}`);
+    }
+
+    return response.json();
+  },
+
+  getDetails: async (paymentId: string) => {
+    const response = await fetch(`https://pixgo.org/api/v1/payment/${paymentId}`, {
+      method: 'GET',
+      headers: {
+        'X-API-Key': process.env.PIXGO_API_KEY as string,
+      },
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`PixGo API error: ${JSON.stringify(errorData)}`);
+    }
+
+    return response.json();
+  },
   
   verifyWebhookSignature: (timestamp: string, payload: string, signature: string) => {
     const WEBHOOK_SECRET = process.env.PIXGO_WEBHOOK_SECRET as string;
