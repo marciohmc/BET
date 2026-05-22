@@ -17,6 +17,7 @@ import transactionRoutes from './routes/transaction.routes';
 import logRoutes from './routes/log.routes';
 import webhookRoutes from './routes/webhook.routes';
 import walletRoutes from './routes/wallet.routes';
+import diagnosticsRoutes from './routes/diagnostics.routes';
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ app.use('/api/promotions', promotionRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/logs', logRoutes);
 app.use('/api/v1/wallet', walletRoutes);
+app.use('/api/diagnostics', diagnosticsRoutes);
 // Note: Webhooks are mounted earlier for raw body support
 
 // Swagger Documentation

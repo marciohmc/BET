@@ -102,6 +102,10 @@ export const getLogsView = (req: Request, res: Response) => {
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
           Test API
         </button>
+        <button id="diagnosticsBtn" onclick="runDiagnostics()" class="px-3.5 py-2 text-xs font-medium text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg transition-colors flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          Diagnostics
+        </button>
         <button id="refreshBtn" onclick="fetchLogs()" class="px-3.5 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:from-blue-700 active:to-indigo-700 rounded-lg transition-all shadow-md shadow-blue-900/20 flex items-center gap-1.5">
           <svg id="refreshIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 16.5m-5.49-16.5h5v5" /></svg>
           Refresh Now
@@ -207,7 +211,29 @@ export const getLogsView = (req: Request, res: Response) => {
     Cassanova Server • Running Node.js Environment • In-Memory Buffer Cache
   </footer>
 
-  <!-- Modal -->
+  <!-- Diagnostics Modal -->
+  <div id="diagnosticsModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+    <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-2xl shadow-2xl">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-white">System Connectivity Diagnostics</h2>
+        <button onclick="closeDiagnosticsModal()" class="text-slate-400 hover:text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+      <div id="diagnosticsContent" class="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+        <div class="flex items-center justify-center py-10">
+          <svg class="w-8 h-8 text-indigo-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 16.5m-5.49-16.5h5v5" /></svg>
+          <span class="ml-3 text-slate-400">Running full system scan...</span>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end">
+        <button onclick="runDiagnostics()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold transition-colors mr-2">Re-Run Check</button>
+        <button onclick="closeDiagnosticsModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-sm font-semibold transition-colors">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Test API Modal -->
   <div id="testApiModal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-lg shadow-2xl">
       <h2 class="text-lg font-semibold text-white mb-4">Test API Configuration</h2>
@@ -284,6 +310,74 @@ export const getLogsView = (req: Request, res: Response) => {
     
     function closeTestModal() {
       document.getElementById('testApiModal').classList.add('hidden');
+    }
+
+    function closeDiagnosticsModal() {
+      document.getElementById('diagnosticsModal').classList.add('hidden');
+    }
+
+    async function runDiagnostics() {
+      document.getElementById('diagnosticsModal').classList.remove('hidden');
+      const content = document.getElementById('diagnosticsContent');
+      content.innerHTML = `
+        <div class="flex items-center justify-center py-10">
+          <svg class="w-8 h-8 text-indigo-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 16.5m-5.49-16.5h5v5" /></svg>
+          <span class="ml-3 text-slate-400">Pinging server infrastructure...</span>
+        </div>
+      `;
+
+      try {
+        const res = await fetch('/api/diagnostics');
+        const data = await res.json();
+        
+        let html = '<div class="space-y-6">';
+        
+        // Services Section
+        html += '<div><h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Service Health</h3><div class="grid grid-cols-1 md:grid-cols-2 gap-3">';
+        for (const [key, svc] of Object.entries(data.services)) {
+          const isOk = svc.status === 'OK';
+          const iconColor = isOk ? 'text-emerald-400' : 'text-red-400';
+          const bgColor = isOk ? 'bg-emerald-500/5' : 'bg-red-500/5';
+          const borderColor = isOk ? 'border-emerald-500/20' : 'border-red-500/20';
+          
+          html += `
+            <div class="${bgColor} ${borderColor} border rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-slate-200 capitalize">${svc.name || key}</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${isOk ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}">${svc.status}</span>
+              </div>
+              <div class="mt-2 text-xs text-slate-400">
+                ${svc.state ? `State: <span class="text-slate-300">${svc.state}</span>` : ''}
+                ${svc.url ? `<div class="truncate mt-1 opacity-60">Endpoint: ${svc.url}</div>` : ''}
+                ${svc.message ? `<div class="text-red-400 mt-1">${svc.message}</div>` : ''}
+              </div>
+            </div>
+          `;
+        }
+        html += '</div></div>';
+
+        // Environment Section
+        html += '<div><h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Environment Config</h3><div class="bg-slate-950/50 border border-slate-800 rounded-lg p-3 font-mono-logs text-[11px] grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4">';
+        for (const [key, val] of Object.entries(data.environment)) {
+          const isConfigured = val === 'Configured' || (key === 'NODE_ENV' && val);
+          html += `
+            <div class="flex items-center justify-between p-1">
+              <span class="text-slate-500">${key}</span>
+              <span class="${isConfigured ? 'text-emerald-500' : 'text-amber-500'}">${val || 'Not Set'}</span>
+            </div>
+          `;
+        }
+        html += '</div></div>';
+
+        html += '</div>';
+        content.innerHTML = html;
+      } catch (err) {
+        content.innerHTML = `
+          <div class="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
+            <span class="text-red-400 text-sm">Failed to connect to Diagnostics API. Check if server is running.</span>
+          </div>
+        `;
+      }
     }
 
     async function runTest() {
