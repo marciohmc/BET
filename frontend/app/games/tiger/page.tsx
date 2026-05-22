@@ -28,7 +28,7 @@ export default function TigerGamePage() {
             <span className="font-mono font-bold">R$ {balance.toFixed(2)}</span>
           </div>
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-pink-600 flex items-center justify-center border border-white/20">
-            {user?.name?.charAt(0).toUpperCase()}
+            {user?.username?.charAt(0).toUpperCase()}
           </div>
         </div>
       </header>

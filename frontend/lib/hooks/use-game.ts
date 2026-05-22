@@ -46,7 +46,7 @@ export function useGame(gameId: string) {
     });
 
     return () => {
-        // gMachineClient.disconnect() já é chamado internamente se necessário
+      gMachineClient.disconnect();
     };
   }, [token, gameId]);
 
