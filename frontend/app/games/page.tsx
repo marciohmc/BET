@@ -28,18 +28,44 @@ export default function GamesPage() {
     const fetchGames = async () => {
       try {
         setIsLoading(true);
-        // api.games.getAll takes an optional params object
         const allGames = await api.games.getAll();
+        
+        const featuredGames: Game[] = [
+          {
+            _id: 'tiger-id',
+            title: 'Fortune Tiger',
+            slug: 'tiger',
+            provider: 'G-Machine',
+            category: 'slots',
+            thumbnail: '🐯',
+            description: 'The luckiest tiger in the casino!',
+            rtp: 96.8,
+            volatility: 'high',
+            features: ['Wilds', 'Multipliers'],
+            minBet: 0.5,
+            maxBet: 500,
+            isPopular: true,
+            isNew: true,
+            isFeatured: true,
+            hasJackpot: false,
+            demoAvailable: true,
+            launchUrl: '/games/tiger',
+          }
+        ];
+
         if (Array.isArray(allGames)) {
-          setGames(allGames);
+          // Filtrar se já existir o tiger nos games da API para não duplicar
+          const apiGamesFiltered = allGames.filter(g => g.slug !== 'tiger');
+          setGames([...featuredGames, ...apiGamesFiltered]);
         } else {
-          // If the API returns something else, write fallback or empty array
-          setGames([]);
+          setGames(featuredGames);
         }
+        setError('');
       } catch (err) {
         console.error('Error fetching games:', err);
-        setError('Failed to load games data. Please try again.');
-        // Fallback fake/mock lists to make the page functional even if backend is offline or loading
+        setError('Failed to load games data. Showing local featured games.');
+        
+        // Mantemos os mocks básicos apenas no erro se não houver nada
         setGames([
           {
             _id: 'tiger-id',
@@ -81,110 +107,8 @@ export default function GamesPage() {
             jackpotAmount: 1450000,
             demoAvailable: true,
             launchUrl: '',
-          },
-          {
-            _id: '2',
-            title: 'Book of Dead',
-            slug: 'book-of-dead',
-            provider: 'Play\'n GO',
-            category: 'slots',
-            thumbnail: '📚',
-            description: 'An ancient Egyptian adventure with expanding symbols.',
-            rtp: 96.2,
-            volatility: 'high',
-            features: ['Expanding Symbols', 'Free Spins'],
-            minBet: 0.1,
-            maxBet: 100,
-            isPopular: true,
-            isNew: false,
-            isFeatured: true,
-            hasJackpot: false,
-            demoAvailable: true,
-            launchUrl: '',
-          },
-          {
-            _id: '3',
-            title: 'Starburst',
-            slug: 'starburst',
-            provider: 'NetEnt',
-            category: 'slots',
-            thumbnail: '⭐',
-            description: 'A vibrant universe featuring arcade-style reels and wild symbols.',
-            rtp: 96.1,
-            volatility: 'low',
-            features: ['Wilds', 'Respins'],
-            minBet: 0.1,
-            maxBet: 100,
-            isPopular: true,
-            isNew: false,
-            isFeatured: false,
-            hasJackpot: false,
-            demoAvailable: true,
-            launchUrl: '',
-          },
-          {
-            _id: '4',
-            title: 'Lightning Roulette',
-            slug: 'lightning-roulette',
-            provider: 'Evolution',
-            category: 'live-casino',
-            thumbnail: '⚡',
-            description: 'Enhanced Live Roulette with lucky numbers and high multipliers.',
-            rtp: 97.3,
-            volatility: 'high',
-            features: ['Multipliers', 'Live Dealer'],
-            minBet: 0.5,
-            maxBet: 5000,
-            isPopular: true,
-            isNew: true,
-            isFeatured: true,
-            hasJackpot: false,
-            demoAvailable: false,
-            launchUrl: '',
-          },
-          {
-            _id: '5',
-            title: 'Blackjack Classic',
-            slug: 'blackjack-classic',
-            provider: 'Evolution',
-            category: 'table-games',
-            thumbnail: '🃏',
-            description: 'Traditional multi-hand professional Blackjack table.',
-            rtp: 99.5,
-            volatility: 'low',
-            features: ['Insurance', 'Double Down'],
-            minBet: 1,
-            maxBet: 1000,
-            isPopular: false,
-            isNew: false,
-            isFeatured: false,
-            hasJackpot: false,
-            demoAvailable: true,
-            launchUrl: '',
-          },
-          {
-            _id: '6',
-            title: 'Mega Moolah',
-            slug: 'mega-moolah',
-            provider: 'Microgaming',
-            category: 'slots',
-            thumbnail: '🦁',
-            description: 'The premier safari-themed mega progressive jackpot wheel.',
-            rtp: 88.1,
-            volatility: 'high',
-            features: ['Jackpot Wheel', 'Free Spins'],
-            minBet: 0.25,
-            maxBet: 6,
-            isPopular: true,
-            isNew: false,
-            isFeatured: true,
-            hasJackpot: true,
-            jackpotAmount: 3840120,
-            demoAvailable: true,
-            launchUrl: '',
           }
         ]);
-        setError('');
       } finally {
         setIsLoading(false);
       }
@@ -267,8 +191,54 @@ export default function GamesPage() {
         {/* Error notification (if any) */}
         {error && (
           <div className="mb-6 p-4 rounded-xl bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 text-sm flex justify-between items-center">
-            <span>💡 {error} (Serving local cached games library)</span>
+            <span>💡 {error}</span>
             <button onClick={() => setError('')} className="text-yellow-400 hover:text-white font-bold ml-2">×</button>
+          </div>
+        )}
+
+        {/* Featured Section (Special for Tiger) */}
+        {!isLoading && activeCategory === 'all' && searchQuery === '' && (
+          <div className="mb-12">
+            <h2 className="text-2xl font-black text-white mb-6 flex items-center gap-2">
+              <span className="text-yellow-400">🔥</span> FEATURED GAMES
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Link 
+                href="/games/tiger"
+                className="group relative h-64 rounded-3xl overflow-hidden border border-purple-500/30 bg-[#1a142d] shadow-2xl transition-all hover:border-yellow-400"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-red-600 to-purple-900 opacity-80 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute inset-0 flex items-center justify-between p-8">
+                  <div className="max-w-xs z-10">
+                    <span className="bg-yellow-400 text-black px-3 py-1 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 inline-block">
+                      NEW RELEASE
+                    </span>
+                    <h3 className="text-4xl font-black text-white italic mb-2 tracking-tighter">
+                      FORTUNE <span className="text-yellow-400">TIGER</span>
+                    </h3>
+                    <p className="text-white/80 text-sm font-medium mb-6">
+                      The luckiest tiger has arrived! Multiply your wins up to 10x with the Tiger Feature.
+                    </p>
+                    <div className="bg-white/20 backdrop-blur-md px-6 py-3 rounded-2xl w-fit font-black text-sm group-hover:bg-yellow-400 group-hover:text-black transition-all">
+                      PLAY NOW
+                    </div>
+                  </div>
+                  <div className="text-9xl transform -rotate-12 group-hover:rotate-0 transition-transform duration-500 drop-shadow-[0_0_30px_rgba(234,179,8,0.5)]">
+                    🐯
+                  </div>
+                </div>
+              </Link>
+              
+              {/* Secondary Featured Card Placeholder */}
+              <div className="hidden lg:flex flex-col justify-between p-8 rounded-3xl bg-purple-900/10 border border-white/5 opacity-50 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 text-7xl opacity-10">🎰</div>
+                <div>
+                  <h4 className="text-xl font-bold text-gray-400">Discover More</h4>
+                  <p className="text-gray-500 text-sm mt-1">Explore our latest slot additions and exclusive providers.</p>
+                </div>
+                <div className="text-gray-600 font-mono text-[10px] tracking-widest mt-8">CASSANOVA EXCLUSIVES</div>
+              </div>
+            </div>
           </div>
         )}
 
