@@ -201,7 +201,7 @@ export const api = {
     },
   } as {
     getAll: (token: string) => Promise<Transaction[]>;
-    pixDeposit: (token: string, data: { amount: number; description?: string | undefined; }) => Promise<{ qr_image_url: string; qr_code: string }>;
+    pixDeposit: (token: string, data: { amount: number; description?: string | undefined; }) => Promise<{ message: string; transactionId: string; pixData: { qr_image_url: string; qr_code: string } }>;
     deposit: (token: string, data: { amount: number; paymentMethod: string }) => Promise<{ transactionId: string; newBalance?: number; message?: string }>;
     withdraw: (token: string, data: { amount: number; paymentMethod: string }) => Promise<{ transactionId: string; newBalance?: number; message?: string }>;
   },

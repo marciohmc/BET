@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 
@@ -136,7 +137,14 @@ export default function DepositPage() {
                 {pixData ? (
                   <div className="bg-white p-6 rounded-lg text-center space-y-4">
                     <h3 className="text-gray-900 font-bold text-lg">Scan to Pay via Pix</h3>
-                    <img src={pixData.qr_image_url} alt="Pix QR Code" className="mx-auto w-64 h-64" />
+                    <div className="relative mx-auto w-64 h-64">
+                      <img 
+                        src={pixData.qr_image_url} 
+                        alt="Pix QR Code" 
+                        className="w-full h-full object-contain"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
                     <p className="text-gray-600 text-sm break-all font-mono">
                       {pixData.qr_code}
                     </p>

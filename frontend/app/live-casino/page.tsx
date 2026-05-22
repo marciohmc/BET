@@ -258,6 +258,13 @@ export default function LiveCasinoPage() {
         </div>
 
         {/* State Display */}
+        {error && (
+          <div className="bg-red-500/20 border border-red-500/50 text-red-100 px-6 py-4 rounded-2xl mb-8 flex items-center gap-4">
+            <span className="text-xl">⚠️</span>
+            <p className="text-sm font-medium">{error}</p>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4">
             <div className="w-12 h-12 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
