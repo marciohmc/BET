@@ -2,7 +2,24 @@ import { io, Socket } from 'socket.io-client';
 
 class GMachineClient {
   private socket: Socket | null = null;
-  private url = process.env.NEXT_PUBLIC_G_MACHINE_URL || 'http://localhost:3001';
+  private getInitialUrl() {
+    if (typeof window !== 'undefined') {
+      const envUrl = process.env.NEXT_PUBLIC_G_MACHINE_URL;
+      if (envUrl) return envUrl;
+      
+      // Se estiver em produção (Render/etc), o backend integrado estará no mesmo host
+      // mas possivelmente em betdabetbe.onrender.com enquanto o front está em betdabet.onrender.com
+      // Então respeitamos o env se existir, caso contrário tentamos derivar ou ficamos no padrão.
+      const hostname = window.location.hostname;
+      if (hostname.includes('onrender.com')) {
+        // Se o front está no render, o backend provavelmente também está.
+        // O usuário configurou betdabetbe.onrender.com nos logs.
+      }
+    }
+    return process.env.NEXT_PUBLIC_G_MACHINE_URL || 'http://localhost:5000'; // Mudado para 5000 pois agora está integrado
+  }
+
+  private url = this.getInitialUrl();
 
   public getUrl() {
     return this.url;

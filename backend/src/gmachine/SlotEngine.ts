@@ -1,4 +1,4 @@
-import { GameMathEngine } from '../engine/MathEngine';
+import { GameMathEngine } from './MathEngine';
 
 export interface SlotConfig {
   reels: number;
