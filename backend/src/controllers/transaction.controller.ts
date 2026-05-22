@@ -34,6 +34,9 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    const balanceBefore = user.balance;
+    const balanceAfter = balanceBefore + numericAmount;
+
     // 1. Create a pending transaction in our DB
     const transaction: any = new Transaction({
       userId: req.userId,
@@ -42,6 +45,8 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
       status: 'pending',
       paymentMethod: 'pix',
       description: description || 'Pix Deposit',
+      balanceBefore,
+      balanceAfter,
     });
     
     await transaction.save();
