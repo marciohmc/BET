@@ -2,11 +2,11 @@ import { Request, Response } from 'express';
 import { getLogs, clearLogs, addLog } from '../utils/logger';
 
 export const addTestLogHandler = async (req: Request, res: Response) => {
-  const { endpoint, key, webhook } = req.body;
+  const { baseUrl, endpoint, key, webhook } = req.body;
   
   let result;
   try {
-    const response = await fetch(`http://localhost:3000${endpoint}`, {
+    const response = await fetch(`${baseUrl}${endpoint}`, {
       method: 'POST', // Assuming POST for most actions
       headers: { 
         'Content-Type': 'application/json',
@@ -213,6 +213,10 @@ export const getLogsView = (req: Request, res: Response) => {
       <h2 class="text-lg font-semibold text-white mb-4">Test API Configuration</h2>
       <div class="space-y-4">
         <div>
+          <label class="block text-xs text-slate-400 mb-1">Base URL</label>
+          <input type="text" id="apiTestBaseUrl" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100" placeholder="e.g. http://localhost:3000" value="http://localhost:3000">
+        </div>
+        <div>
           <label class="block text-xs text-slate-400 mb-1">Category</label>
           <select id="apiTestCategory" onchange="updateEndpoints()" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-100">
             <option value="">Select Category</option>
@@ -283,6 +287,7 @@ export const getLogsView = (req: Request, res: Response) => {
     }
 
     async function runTest() {
+        const baseUrl = document.getElementById('apiTestBaseUrl').value;
         const endpoint = document.getElementById('apiTestEndpoint').value;
         const key = document.getElementById('apiTestKey').value;
         const webhook = document.getElementById('apiTestWebhook').value;
@@ -295,7 +300,7 @@ export const getLogsView = (req: Request, res: Response) => {
             const res = await fetch('/api/logs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ endpoint, key, webhook })
+                body: JSON.stringify({ baseUrl, endpoint, key, webhook })
             });
             const data = await res.json();
             if (data.success) {
