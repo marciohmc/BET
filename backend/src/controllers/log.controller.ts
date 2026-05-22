@@ -1,10 +1,38 @@
 import { Request, Response } from 'express';
 import { getLogs, clearLogs, addLog } from '../utils/logger';
 
-export const addTestLogHandler = (req: Request, res: Response) => {
+export const addTestLogHandler = async (req: Request, res: Response) => {
   const { endpoint, key, webhook } = req.body;
-  addLog('TESTE', `Test execution on ${endpoint}`, { key, webhook });
-  res.json({ success: true, message: 'Test log recorded' });
+  
+  let result;
+  try {
+    const response = await fetch(`http://localhost:3000${endpoint}`, {
+      method: 'POST', // Assuming POST for most actions
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}` 
+      },
+      body: JSON.stringify({ webhook }) // Include webhook as part of body
+    });
+    
+    result = {
+      status: response.status,
+      ok: response.ok,
+      statusText: response.statusText
+    };
+    
+    addLog(
+      'TESTE', 
+      `Test API result for ${endpoint}: ${response.ok ? 'SUCCESS' : 'FAILURE'} (${response.statusText})`, 
+      { endpoint, key, webhook, result }
+    );
+    
+    res.json({ success: response.ok, result });
+  } catch (error: any) {
+    result = { error: error.message };
+    addLog('TESTE', `Test API failed for ${endpoint}: ${error.message}`, { endpoint, result });
+    res.json({ success: false, result });
+  }
 };
 
 export const getLogsJSON = (req: Request, res: Response) => {
@@ -269,14 +297,16 @@ export const getLogsView = (req: Request, res: Response) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ endpoint, key, webhook })
             });
-            if (res.ok) {
-                alert('Test log recorded successfully!');
+            const data = await res.json();
+            if (data.success) {
+                alert('Test completed successfully! Status: ' + data.result.status);
                 fetchLogs();
             } else {
-                alert('Failed to record test log.');
+                alert('Test failed. ' + (data.result?.status ? ('Status: ' + data.result.status + ' ') : '') + (data.result?.statusText || data.result?.error || 'Unknown error'));
             }
         } catch (err) {
-            console.error('Error recording test log:', err);
+            console.error('Error running test:', err);
+            alert('An error occurred while running the test.');
         }
         closeTestModal();
     }
