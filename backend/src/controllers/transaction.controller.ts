@@ -23,9 +23,10 @@ export const getUserTransactions = async (req: AuthRequest, res: Response) => {
 export const createPixDeposit = async (req: AuthRequest, res: Response) => {
   try {
     const { amount, description } = req.body;
+    const numericAmount = parseFloat(amount);
 
-    if (!amount || amount < 10) {
-      return res.status(400).json({ message: 'Amount must be at least 10 BRL' });
+    if (!numericAmount || numericAmount < 10) {
+      return res.status(400).json({ message: 'Amount must be a number at least 10 BRL' });
     }
 
     const user = await User.findById(req.userId);
@@ -37,7 +38,7 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
     const transaction: any = new Transaction({
       userId: req.userId,
       type: 'deposit',
-      amount,
+      amount: numericAmount,
       status: 'pending',
       paymentMethod: 'pix',
       description: description || 'Pix Deposit',
@@ -46,19 +47,27 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
     await transaction.save();
 
     // 2. Call PixGo API
-    const webhookUrl = `${process.env.APP_URL}/api/webhooks/pixgo`;
-    const pixgoResponse = await pixgoService.createPayment(
-      amount,
-      description || 'Pix Deposit',
-      transaction._id.toString(),
-      webhookUrl
-    );
+    try {
+        const webhookUrl = `${process.env.APP_URL}/api/webhooks/pixgo`;
+        const pixgoResponse = await pixgoService.createPayment(
+          numericAmount,
+          description || 'Pix Deposit',
+          transaction._id.toString(),
+          webhookUrl
+        );
 
-    res.status(201).json({
-      message: 'Pix payment initiated',
-      transactionId: transaction._id,
-      pixData: (pixgoResponse as any).data,
-    });
+        res.status(201).json({
+          message: 'Pix payment initiated',
+          transactionId: transaction._id,
+          pixData: (pixgoResponse as any).data,
+        });
+    } catch (apiError) {
+        console.error('PixGo API error (detailed):', apiError);
+        // Mark transaction as failed
+        transaction.status = 'failed';
+        await transaction.save();
+        throw apiError; // re-throw to be caught by main catch
+    }
   } catch (error) {
     console.error('Pix deposit error:', error);
     res.status(500).json({ message: 'Pix deposit failed', error: error instanceof Error ? error.message : error });
