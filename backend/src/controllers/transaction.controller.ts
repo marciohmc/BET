@@ -54,6 +54,8 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
     // 2. Call PixGo API
     try {
         const webhookUrl = `${process.env.APP_URL}/api/webhooks/pixgo`;
+        console.log('Initiating PixGo payment with webhook:', webhookUrl);
+        
         const pixgoResponse = await pixgoService.createPayment(
           numericAmount,
           description || 'Pix Deposit',
@@ -61,17 +63,27 @@ export const createPixDeposit = async (req: AuthRequest, res: Response) => {
           webhookUrl
         );
 
-        // Handle both possible response formats from PixGo
+        console.log('PixGo API Response structure:', JSON.stringify(pixgoResponse));
+
+        // Handle various possible response formats from PixGo
+        // Some versions return { data: { ... } }, others return the object directly
         const pixData = (pixgoResponse as any).data || pixgoResponse;
+
+        // Fallback for field naming variations (qr_code vs qrcode, etc)
+        const mappedPixData = {
+          qr_code: pixData.qr_code || pixData.qrcode || pixData.code,
+          qr_image_url: pixData.qr_image_url || pixData.qrcode_url || pixData.image_url,
+          payment_id: pixData.payment_id || pixData.id
+        };
+
+        if (!mappedPixData.qr_code || !mappedPixData.qr_image_url) {
+          console.warn('PixGo response missing critical fields:', mappedPixData);
+        }
 
         res.status(201).json({
           message: 'Pix payment initiated',
           transactionId: transaction._id,
-          pixData: {
-            qr_code: pixData.qr_code,
-            qr_image_url: pixData.qr_image_url,
-            payment_id: pixData.payment_id
-          },
+          pixData: mappedPixData,
         });
     } catch (apiError) {
         console.error('PixGo API error (detailed):', apiError);

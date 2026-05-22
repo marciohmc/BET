@@ -23,14 +23,24 @@ export const handlePixGoWebhook = async (req: Request, res: Response) => {
     return res.status(401).send('Timestamp expirado');
   }
 
-  const payload = JSON.parse(rawBody.toString());
+  const payloadStr = rawBody.toString();
+  console.log('PixGo Webhook Received. Payload:', payloadStr);
+
+  const payload = JSON.parse(payloadStr);
 
   try {
-    const { external_id, amounts } = payload.data;
+    // Extract data from payload (trying both nested 'data' and root)
+    const data = payload.data || payload;
+    const external_id = data.external_id || data.reference_id || data.id;
+    const amounts = data.amounts || { total: data.amount };
+    const event = payload.event || data.status_event;
+
+    console.log(`Processing event ${event} for transaction ${external_id}`);
+
     const transaction = await Transaction.findById(external_id);
 
     if (transaction) {
-      if (payload.event === 'payment.completed') {
+      if (event === 'payment.completed' || event === 'paid') {
         if (transaction.status === 'pending') {
           const user = await User.findById(transaction.userId);
           if (user) {
@@ -39,8 +49,8 @@ export const handlePixGoWebhook = async (req: Request, res: Response) => {
 
             // Credit the full amount planned in the transaction, 
             // or the total paid if preferred. 
-            // Using transaction.amount ensures the user gets what they asked for.
-            const creditAmount = amounts?.total || transaction.amount;
+            const creditAmount = amounts?.total || data.amount || transaction.amount;
+            console.log(`Crediting ${creditAmount} to user ${user._id}`);
 
             // Atomic update for balance
             await User.updateOne(
@@ -49,7 +59,7 @@ export const handlePixGoWebhook = async (req: Request, res: Response) => {
             );
           }
         }
-      } else if (payload.event === 'payment.expired') {
+      } else if (event === 'payment.expired' || event === 'expired') {
         transaction.status = 'expired';
         await transaction.save();
       } else if (payload.event === 'payment.refunded') {
