@@ -1,6 +1,6 @@
 {
-  "name": "Cassanova Casino",
-  "description": "Premium iGaming platform with native games, seamless wallet, and Provably Fair RNG.",
+  "name": "Cassanova Docker Setup",
+  "description": "Docker configuration files and setup guides for the Cassanova iGaming platform (Frontend, Backend, and MongoDB Database).",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

@@ -10,7 +10,6 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   refreshUser: () => Promise<void>;
-  updateBalance: (newBalance: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,14 +17,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-
-  const updateBalance = (newBalance: number) => {
-    if (user) {
-      const updatedUser = { ...user, balance: newBalance };
-      setUser(updatedUser);
-      localStorage.setItem('user', JSON.stringify(updatedUser));
-    }
-  };
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
@@ -80,7 +71,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         isAuthenticated: !!token,
         refreshUser,
-        updateBalance,
       }}
     >
       {children}
