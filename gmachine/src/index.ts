@@ -1,8 +1,8 @@
 import { Server, Socket } from 'socket.io';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
-import { RNG } from './core/rng';
-import { SlotEngine } from './core/slots';
+import { RNG } from './core/rng.js';
+import { SlotEngine } from './core/slots.js';
 
 const tigerConfig = {
   reels: 3,
