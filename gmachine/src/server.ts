@@ -19,7 +19,7 @@ wss.on('connection', (ws: WebSocket) => {
   let userId: string | null = null;
   let isAuthenticated = false;
 
-  ws.on('message', async (data) => {
+  ws.on('message', async (data: Buffer | string | ArrayBuffer | Buffer[]) => {
     try {
       const message: WSMessage = JSON.parse(data.toString());
 
