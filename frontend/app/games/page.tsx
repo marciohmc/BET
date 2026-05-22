@@ -42,6 +42,26 @@ export default function GamesPage() {
         // Fallback fake/mock lists to make the page functional even if backend is offline or loading
         setGames([
           {
+            _id: 'tiger-id',
+            title: 'Fortune Tiger',
+            slug: 'tiger',
+            provider: 'G-Machine',
+            category: 'slots',
+            thumbnail: '🐯',
+            description: 'The luckiest tiger in the casino!',
+            rtp: 96.8,
+            volatility: 'high',
+            features: ['Wilds', 'Multipliers'],
+            minBet: 0.5,
+            maxBet: 500,
+            isPopular: true,
+            isNew: true,
+            isFeatured: true,
+            hasJackpot: false,
+            demoAvailable: true,
+            launchUrl: '/games/tiger',
+          },
+          {
             _id: '1',
             title: 'Mega Fortune',
             slug: 'mega-fortune',
