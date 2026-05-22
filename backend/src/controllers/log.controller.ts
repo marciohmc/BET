@@ -24,13 +24,13 @@ export const addTestLogHandler = async (req: Request, res: Response) => {
     addLog(
       'TESTE', 
       `Test API result for ${endpoint}: ${response.ok ? 'SUCCESS' : 'FAILURE'} (${response.statusText})`, 
-      { endpoint, key, webhook, result }
+      { url: endpoint, key, webhook, details: result }
     );
     
     res.json({ success: response.ok, result });
   } catch (error: any) {
     result = { error: error.message };
-    addLog('TESTE', `Test API failed for ${endpoint}: ${error.message}`, { endpoint, result });
+    addLog('TESTE', `Test API failed for ${endpoint}: ${error.message}`, { url: endpoint, details: result });
     res.json({ success: false, result });
   }
 };
