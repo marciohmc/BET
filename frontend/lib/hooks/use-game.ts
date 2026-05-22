@@ -30,8 +30,27 @@ export function useGame(gameId: string) {
 
     const socket = gMachineClient.connect(token, gameId);
 
-    socket.on('game_ready', (data: { balance: number }) => {
+    socket.on('connect', () => {
+      console.log('[G-MACHINE] Connected to Game Server');
+      setError(null);
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error('[G-MACHINE] Connection Error:', err);
+      setError('Unable to connect to game server. Check your connection or the server URL.');
+      setIsSpinning(false);
+    });
+
+    socket.on('game_ready', (data: { balance: number, initialMatrix?: string[][] }) => {
       setBalance(data.balance);
+      if (data.initialMatrix) {
+        setLastResult(prev => ({
+          matrix: data.initialMatrix as string[][],
+          totalWin: prev?.totalWin || 0,
+          winningLines: prev?.winningLines || [],
+          newBalance: data.balance || 0
+        }));
+      }
     });
 
     socket.on('spin_result', (data: SpinResult) => {

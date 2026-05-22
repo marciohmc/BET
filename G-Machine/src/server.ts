@@ -73,8 +73,13 @@ io.on('connection', (socket) => {
     }
 
     socket.join(data.gameId);
+    
+    // Generate initial random matrix to show something on the screen
+    const initialMatrix = data.gameId === 'tiger' ? tigerEngine.spin() : null;
+
     socket.emit('game_ready', { 
       balance: user.balance, 
+      initialMatrix,
       config: data.gameId === 'tiger' ? TIGER_CONFIG : null 
     });
   });
