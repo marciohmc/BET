@@ -2,13 +2,27 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { gMachineClient } from '../gmachine-client';
-import { useAuth } from '../auth-context'; // Assumindo que useAuth fornece o token
+import { useAuth } from '../auth-context';
+
+interface WinningLine {
+  line: string;
+  count: number;
+  symbol: string;
+  win: number;
+}
+
+interface SpinResult {
+  matrix: string[][];
+  totalWin: number;
+  winningLines: WinningLine[];
+  newBalance: number;
+}
 
 export function useGame(gameId: string) {
   const { user, token } = useAuth();
   const [balance, setBalance] = useState<number>(0);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [lastResult, setLastResult] = useState<any>(null);
+  const [lastResult, setLastResult] = useState<SpinResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -16,11 +30,11 @@ export function useGame(gameId: string) {
 
     const socket = gMachineClient.connect(token, gameId);
 
-    socket.on('game_ready', (data: any) => {
+    socket.on('game_ready', (data: { balance: number }) => {
       setBalance(data.balance);
     });
 
-    socket.on('spin_result', (data: any) => {
+    socket.on('spin_result', (data: SpinResult) => {
       setLastResult(data);
       setBalance(data.newBalance);
       setIsSpinning(false);
@@ -32,7 +46,7 @@ export function useGame(gameId: string) {
     });
 
     return () => {
-      gMachineClient.disconnect();
+        // gMachineClient.disconnect() já é chamado internamente se necessário
     };
   }, [token, gameId]);
 
