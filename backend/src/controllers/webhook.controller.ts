@@ -37,8 +37,11 @@ export const handlePixGoWebhook = async (req: Request, res: Response) => {
             transaction.status = 'completed';
             await transaction.save();
 
-            user.balance += amounts.net;
-            await user.save();
+            // Atomic update for balance
+            await User.updateOne(
+              { _id: user._id },
+              { $inc: { balance: amounts.net } }
+            );
           }
         }
       } else if (payload.event === 'payment.expired') {

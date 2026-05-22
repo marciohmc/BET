@@ -69,8 +69,8 @@ export default function DepositPage() {
           amount: depositAmount,
           description: 'Pix Deposit',
         });
-        if (response.qr_image_url && response.qr_code) {
-          setPixData(response);
+        if (response.pixData && response.pixData.qr_image_url && response.pixData.qr_code) {
+          setPixData(response.pixData);
           setSuccess('Pix QR Code generated! Please scan.');
         } else {
           setError('Pix deposit initiation failed');

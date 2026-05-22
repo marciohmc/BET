@@ -44,6 +44,11 @@ if (!MONGODB_URI.startsWith('mongodb://') && !MONGODB_URI.startsWith('mongodb+sr
 
 // Middleware
 app.use(cors());
+
+// Webhook route needs raw body for signature verification
+// We must place it BEFORE express.json()
+app.use('/api/webhooks', webhookRoutes);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -57,7 +62,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/logs', logRoutes);
-app.use('/api/webhooks', webhookRoutes);
+// Note: Webhooks are mounted earlier for raw body support
 
 // Swagger Documentation
 const swaggerOptions = {

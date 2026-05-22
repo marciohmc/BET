@@ -146,6 +146,17 @@ export const createWithdrawal = async (req: AuthRequest, res: Response) => {
     const balanceBefore = user.balance;
     const balanceAfter = balanceBefore - amount;
 
+    // Use atomic update to ensure balance doesn't drop below amount during concurrent requests
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.userId, balance: { $gte: amount } },
+      { $inc: { balance: -amount } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(400).json({ message: 'Insufficient balance or concurrent transaction lock' });
+    }
+
     const transaction = new Transaction({
       userId: req.userId,
       type: 'withdrawal',
@@ -153,19 +164,16 @@ export const createWithdrawal = async (req: AuthRequest, res: Response) => {
       status: 'pending',
       paymentMethod,
       balanceBefore,
-      balanceAfter,
+      balanceAfter: updatedUser.balance,
       description: `Withdrawal via ${paymentMethod}`,
     });
 
     await transaction.save();
 
-    user.balance = balanceAfter;
-    await user.save();
-
     res.status(201).json({ 
       message: 'Withdrawal request submitted', 
       transaction,
-      newBalance: balanceAfter 
+      newBalance: updatedUser.balance 
     });
   } catch (error) {
     console.error('Withdrawal error:', error);
