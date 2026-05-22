@@ -141,7 +141,7 @@ export default function DashboardPage() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-white mb-4">Quick Actions</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Link
             href="/deposit"
             className="bg-gray-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-yellow-400 transition-all transform hover:scale-105"
@@ -173,58 +173,66 @@ export default function DashboardPage() {
           </Link>
 
           <Link
-            href="/games"
+            href="/favorites"
+            className="bg-gray-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-yellow-400 transition-all transform hover:scale-105"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center">
+                <span className="text-2xl">❤️</span>
+              </div>
+              <div>
+                <h3 className="text-white font-bold text-lg">Favorites</h3>
+                <p className="text-gray-400 text-sm">Your favorite games</p>
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/promotions"
             className="bg-gray-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-yellow-400 transition-all transform hover:scale-105"
           >
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center">
-                <span className="text-2xl">🎰</span>
+                <span className="text-2xl">🎉</span>
               </div>
               <div>
-                <h3 className="text-white font-bold text-lg">Lobby</h3>
-                <p className="text-gray-400 text-sm">See all games</p>
+                <h3 className="text-white font-bold text-lg">Promotions</h3>
+                <p className="text-gray-400 text-sm">View available bonuses</p>
               </div>
             </div>
           </Link>
-        </div>
 
-        {/* Featured Games */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-white">Popular Games</h2>
-            <Link href="/games" className="text-yellow-400 hover:text-yellow-300 font-bold transition-colors">
-              View All →
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <Link 
-              href="/games/tiger" 
-              className="group relative aspect-square bg-[#1a142d] rounded-2xl border border-purple-500/20 overflow-hidden hover:border-yellow-500/50 transition-all transform hover:-translate-y-1"
-            >
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-red-800 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform">
-                🐯
+          {/* KYC Verification - Temporarily disabled
+          <Link
+            href="/kyc"
+            className="bg-gray-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-yellow-400 transition-all transform hover:scale-105"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-indigo-500/20 rounded-full flex items-center justify-center">
+                <span className="text-2xl">📄</span>
               </div>
-              <div className="absolute inset-x-0 bottom-0 p-3 bg-black/60 backdrop-blur-sm border-t border-white/10">
-                <p className="text-white font-bold text-xs truncate">Fortune Tiger</p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-[10px] text-orange-400 font-black">POPULAR</span>
-                  <span className="text-[10px] text-green-400 font-bold">96.8% RTP</span>
-                </div>
+              <div>
+                <h3 className="text-white font-bold text-lg">KYC Verification</h3>
+                <p className="text-gray-400 text-sm">Upload verification documents</p>
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <div className="bg-yellow-500 text-black px-4 py-2 rounded-full font-black text-sm scale-75 group-hover:scale-100 transition-transform">
-                  PLAY
-                </div>
-              </div>
-            </Link>
+            </div>
+          </Link>
+          */}
 
-            {/* Other mock game placeholders for balance */}
-            {['🦁', '🐉', '🍬', '🏛️', '🎭'].map((icon, idx) => (
-              <div key={idx} className="aspect-square bg-gray-800/40 rounded-2xl border border-white/5 opacity-50 flex items-center justify-center grayscale">
-                <span className="text-4xl">{icon}</span>
+          <Link
+            href="/settings"
+            className="bg-gray-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl p-6 hover:border-yellow-400 transition-all transform hover:scale-105"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+                <span className="text-2xl">⚙️</span>
               </div>
-            ))}
-          </div>
+              <div>
+                <h3 className="text-white font-bold text-lg">Security Settings</h3>
+                <p className="text-gray-400 text-sm">Manage 2FA and security</p>
+              </div>
+            </div>
+          </Link>
         </div>
 
         {/* Recent Transactions */}
