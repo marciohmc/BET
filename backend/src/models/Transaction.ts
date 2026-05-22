@@ -4,7 +4,7 @@ export interface ITransaction extends Document {
   userId: mongoose.Types.ObjectId;
   type: 'deposit' | 'withdrawal' | 'bet' | 'win' | 'bonus';
   amount: number;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  status: 'pending' | 'completed' | 'failed' | 'cancelled' | 'expired' | 'refunded';
   paymentMethod?: string;
   transactionId?: string;
   description?: string;
@@ -26,7 +26,7 @@ const TransactionSchema: Schema = new Schema(
     status: { 
       type: String, 
       required: true,
-      enum: ['pending', 'completed', 'failed', 'cancelled'],
+      enum: ['pending', 'completed', 'failed', 'cancelled', 'expired', 'refunded'],
       default: 'pending'
     },
     paymentMethod: { type: String },
