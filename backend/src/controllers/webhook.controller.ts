@@ -18,22 +18,36 @@ export const handlePixGoWebhook = async (req: Request, res: Response) => {
     return res.status(401).send('Invalid signature');
   }
 
+  // Protecao contra replay attack (5 min)
+  if (Math.abs(Date.now() / 1000 - parseInt(timestamp)) > 300) {
+    return res.status(401).send('Timestamp expirado');
+  }
+
   const payload = JSON.parse(rawBody.toString());
 
   try {
-    if (payload.event === 'payment.completed') {
-      const { external_id, amounts } = payload.data;
-      const transaction = await Transaction.findById(external_id);
-      
-      if (transaction && transaction.status === 'pending') {
-        const user = await User.findById(transaction.userId);
-        if (user) {
-          transaction.status = 'completed';
-          await transaction.save();
+    const { external_id, amounts, status } = payload.data;
+    const transaction = await Transaction.findById(external_id);
 
-          user.balance += amounts.net;
-          await user.save();
+    if (transaction) {
+      if (payload.event === 'payment.completed') {
+        if (transaction.status === 'pending') {
+          const user = await User.findById(transaction.userId);
+          if (user) {
+            transaction.status = 'completed';
+            await transaction.save();
+
+            user.balance += amounts.net;
+            await user.save();
+          }
         }
+      } else if (payload.event === 'payment.expired') {
+        transaction.status = 'expired';
+        await transaction.save();
+      } else if (payload.event === 'payment.refunded') {
+        transaction.status = 'refunded';
+        await transaction.save();
+        // Optional: handle user balance deduction if needed
       }
     }
 
