@@ -8,10 +8,6 @@ import { api } from '@/lib/api';
 
 const PAYMENT_METHODS = [
   { id: 'pix', name: 'PIX', icon: '⚡', min: 10, max: 3000 },
-  { id: 'credit-card', name: 'Credit/Debit Card', icon: '💳', min: 10, max: 10000 },
-  { id: 'crypto', name: 'Cryptocurrency', icon: '₿', min: 20, max: 50000 },
-  { id: 'bank-transfer', name: 'Bank Transfer', icon: '🏦', min: 50, max: 100000 },
-  { id: 'e-wallet', name: 'E-Wallet', icon: '💰', min: 10, max: 5000 },
 ];
 
 interface PixData {
@@ -164,7 +160,7 @@ export default function DepositPage() {
                       <label className="block text-sm font-medium text-gray-300 mb-4">
                         Select Payment Method
                       </label>
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4">
                         {PAYMENT_METHODS.map((method) => (
                           <button
                             key={method.id}

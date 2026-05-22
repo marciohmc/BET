@@ -8,8 +8,6 @@ import { api } from '@/lib/api';
 
 const PAYMENT_METHODS = [
   { id: 'pix', name: 'Pix', icon: '💎', min: 20, max: 50000 },
-  { id: 'bank-transfer', name: 'Bank Transfer', icon: '🏦', min: 50, max: 100000 },
-  { id: 'crypto', name: 'Cryptocurrency', icon: '₿', min: 20, max: 50000 },
 ];
 
 const PIX_KEY_TYPES = [
@@ -171,7 +169,7 @@ export default function WithdrawPage() {
                   <label className="block text-sm font-medium text-gray-300 mb-4">
                     Select Withdrawal Method
                   </label>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 gap-4">
                     {PAYMENT_METHODS.map((method) => (
                       <button
                         key={method.id}
