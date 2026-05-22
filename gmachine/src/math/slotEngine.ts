@@ -1,4 +1,5 @@
 import { SpinResult, WinningLine, BonusResult, BonusStep } from '../types/game.js';
+import { ProvablyFair } from '../core/provablyFair.js';
 
 export class SlotEngine {
   // IDs dos Símbolos: 0: Laranja, 1: Fogos, 2: Envelope, 3: Saco Moedas, 4: Pote Ouro, 5: Amuleto, 6: Tigre (WILD)
@@ -26,9 +27,20 @@ export class SlotEngine {
     [[2, 0], [1, 1], [0, 2]], // Diagonal Ascendente
   ];
 
-  public spin(bet: number): SpinResult {
-    const matrix = this.generateMatrix();
-    const isBonusTriggered = Math.random() < 0.05; // 5% de chance de bônus
+  public spin(bet: number, fairState?: { serverSeed: string; clientSeed: string; nonce: number }): SpinResult {
+    const matrix = this.generateMatrix(fairState);
+    let isBonusTriggered = Math.random() < 0.05; // 5% de chance de bônus
+
+    if (fairState) {
+      // Deterministic bonus trigger based on a separate hash offset
+      const stops = ProvablyFair.getDeterministicReelStops(
+        fairState.serverSeed,
+        fairState.clientSeed,
+        fairState.nonce + 999, // Offset
+        [100]
+      );
+      isBonusTriggered = stops[0] < 5; // 5% de chance
+    }
 
     if (isBonusTriggered) {
       return this.processBonus(bet, matrix);
@@ -37,13 +49,35 @@ export class SlotEngine {
     return this.evaluateSpin(matrix, bet);
   }
 
-  private generateMatrix(): number[][] {
+  private generateMatrix(fairState?: { serverSeed: string; clientSeed: string; nonce: number }): number[][] {
     const matrix: number[][] = [];
-    for (let r = 0; r < 3; r++) {
-      matrix[r] = [];
-      for (let c = 0; c < 3; c++) {
-        const reel = this.reels[c];
-        matrix[r][c] = reel[Math.floor(Math.random() * reel.length)];
+    
+    if (fairState) {
+      // Get deterministic stops for each of the reels
+      const reelLengths = this.reels.map(r => r.length);
+      const stops = ProvablyFair.getDeterministicReelStops(
+        fairState.serverSeed,
+        fairState.clientSeed,
+        fairState.nonce,
+        reelLengths
+      );
+
+      for (let r = 0; r < 3; r++) {
+        matrix[r] = [];
+        for (let c = 0; c < 3; c++) {
+          const reel = this.reels[c];
+          const stopIndex = stops[c];
+          const pos = (stopIndex + r) % reel.length;
+          matrix[r][c] = reel[pos];
+        }
+      }
+    } else {
+      for (let r = 0; r < 3; r++) {
+        matrix[r] = [];
+        for (let c = 0; c < 3; c++) {
+          const reel = this.reels[c];
+          matrix[r][c] = reel[Math.floor(Math.random() * reel.length)];
+        }
       }
     }
     return matrix;

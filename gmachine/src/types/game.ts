@@ -38,7 +38,9 @@ export interface BonusStep {
 
 export enum GameAction {
   SPIN = 'spin',
-  AUTH = 'auth'
+  AUTH = 'auth',
+  GET_FAIR = 'get_fair',
+  UPDATE_SEED = 'update_seed'
 }
 
 export interface WSMessage {

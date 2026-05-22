@@ -7,11 +7,13 @@ import Image from 'next/image';
 import { Game } from '@/types';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-context';
+import TigerGameCanvas from '@/components/games/TigerGameCanvas';
 
 export default function GameDetailPage() {
   const params = useParams();
   const router = useRouter();
   const { isAuthenticated, token, user } = useAuth();
+  const [isPlaying, setIsPlaying] = useState(false);
   const [game, setGame] = useState<Game | null>(null);
   const [similarGames, setSimilarGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,6 +60,10 @@ export default function GameDetailPage() {
   const handlePlayGame = (mode: 'real' | 'demo') => {
     if (mode === 'real' && !isAuthenticated) {
       router.push('/login');
+      return;
+    }
+    if (params.slug === 'tiger') {
+      setIsPlaying(true);
       return;
     }
     // In a real app, this would launch the game
@@ -131,25 +137,31 @@ export default function GameDetailPage() {
           {/* Game Image and Play Section */}
           <div className="lg:col-span-2">
             <div className="bg-gray-800/50 backdrop-blur-lg border border-purple-500/20 rounded-xl overflow-hidden">
-              {/* Game Image */}
-              <div className="relative aspect-video bg-gray-700">
-                <Image
-                  src={game.thumbnail}
-                  alt={game.title}
-                  fill
-                  className="object-cover"
-                />
-                {game.hasJackpot && game.jackpotAmount && (
-                  <div className="absolute top-4 right-4 bg-yellow-500 text-gray-900 px-4 py-2 rounded-full font-bold">
-                    💰 ${game.jackpotAmount.toLocaleString()}
-                  </div>
-                )}
-                {game.isNew && (
-                  <div className="absolute top-4 left-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    NEW
-                  </div>
-                )}
-              </div>
+              {/* Game Image or Active Canvas */}
+              {isPlaying && params.slug === 'tiger' ? (
+                <div className="p-4 bg-slate-950/80">
+                  <TigerGameCanvas />
+                </div>
+              ) : (
+                <div className="relative aspect-video bg-gray-700">
+                  <Image
+                    src={game.thumbnail}
+                    alt={game.title}
+                    fill
+                    className="object-cover"
+                  />
+                  {game.hasJackpot && game.jackpotAmount && (
+                    <div className="absolute top-4 right-4 bg-yellow-500 text-gray-900 px-4 py-2 rounded-full font-bold">
+                      💰 ${game.jackpotAmount.toLocaleString()}
+                    </div>
+                  )}
+                  {game.isNew && (
+                    <div className="absolute top-4 left-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                      NEW
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Game Info */}
               <div className="p-8">
