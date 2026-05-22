@@ -69,5 +69,28 @@ export const pixgoService = {
         Buffer.from(expected, 'hex'),
         Buffer.from(signature, 'hex')
     );
+  },
+
+  createPayout: async (amount: number, pixKey: string, pixKeyType: string, externalId: string) => {
+    const response = await fetch('https://pixgo.org/api/v1/payout/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': process.env.PIXGO_API_KEY as string,
+      },
+      body: JSON.stringify({
+        amount,
+        pix_key: pixKey,
+        pix_key_type: pixKeyType, // e.g., 'cpf', 'email', 'phone', 'random'
+        external_id: externalId,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`PixGo Payout error: ${JSON.stringify(errorData)}`);
+    }
+
+    return response.json();
   }
 };

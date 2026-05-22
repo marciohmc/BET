@@ -199,11 +199,24 @@ export const api = {
       });
       return response.json();
     },
+
+    pixWithdraw: async (token: string, data: { amount: number; pixKey: string; pixKeyType: string }) => {
+      const response = await fetch(`${API_BASE_URL}/transactions/withdrawal/pix`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      return response.json();
+    },
   } as {
     getAll: (token: string) => Promise<Transaction[]>;
     pixDeposit: (token: string, data: { amount: number; description?: string | undefined; }) => Promise<{ message: string; transactionId: string; pixData: { qr_image_url: string; qr_code: string } }>;
     deposit: (token: string, data: { amount: number; paymentMethod: string }) => Promise<{ transactionId: string; newBalance?: number; message?: string }>;
     withdraw: (token: string, data: { amount: number; paymentMethod: string }) => Promise<{ transactionId: string; newBalance?: number; message?: string }>;
+    pixWithdraw: (token: string, data: { amount: number; pixKey: string; pixKeyType: string }) => Promise<{ message: string; transactionId: string; newBalance?: number; warning?: string }>;
   },
 
   // User endpoints

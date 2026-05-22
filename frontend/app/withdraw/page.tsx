@@ -7,9 +7,16 @@ import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 
 const PAYMENT_METHODS = [
+  { id: 'pix', name: 'Pix', icon: '💎', min: 20, max: 50000 },
   { id: 'bank-transfer', name: 'Bank Transfer', icon: '🏦', min: 50, max: 100000 },
   { id: 'crypto', name: 'Cryptocurrency', icon: '₿', min: 20, max: 50000 },
-  { id: 'e-wallet', name: 'E-Wallet', icon: '💰', min: 10, max: 5000 },
+];
+
+const PIX_KEY_TYPES = [
+  { id: 'cpf', name: 'CPF' },
+  { id: 'email', name: 'E-mail' },
+  { id: 'phone', name: 'Phone' },
+  { id: 'random', name: 'Random Key' },
 ];
 
 export default function WithdrawPage() {
@@ -17,6 +24,8 @@ export default function WithdrawPage() {
   const { user, token, isAuthenticated } = useAuth();
   const [amount, setAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState(PAYMENT_METHODS[0].id);
+  const [pixKey, setPixKey] = useState('');
+  const [pixKeyType, setPixKeyType] = useState('cpf');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -68,24 +77,42 @@ export default function WithdrawPage() {
     }
 
     setIsLoading(true);
+    setError('');
 
     try {
-      const response = await api.transactions.withdraw(token, {
-        amount: withdrawAmount,
-        paymentMethod: method.name,
-      });
+      let response;
+      if (selectedMethod === 'pix') {
+        if (!pixKey || !pixKeyType) {
+          setError('Pix Key and Type are required');
+          setIsLoading(false);
+          return;
+        }
+        response = await api.transactions.pixWithdraw(token, {
+          amount: withdrawAmount,
+          pixKey,
+          pixKeyType,
+        });
+      } else {
+        response = await api.transactions.withdraw(token, {
+          amount: withdrawAmount,
+          paymentMethod: method.name,
+        });
+      }
 
       if (response.newBalance !== undefined) {
-        setSuccess(`Withdrawal request submitted! Your new balance is $${response.newBalance.toFixed(2)}`);
+        setSuccess(response.warning || `Withdrawal request submitted! Your new balance is $${response.newBalance.toFixed(2)}`);
         setAmount('');
+        if (selectedMethod === 'pix') {
+          setPixKey('');
+        }
         setTimeout(() => {
           router.push('/dashboard');
-        }, 2000);
+        }, 3000);
       } else {
         setError(response.message || 'Withdrawal failed');
       }
-    } catch {
-      setError('An error occurred during withdrawal');
+    } catch (err: any) {
+      setError(err instanceof Error ? err.message : 'An error occurred during withdrawal');
     } finally {
       setIsLoading(false);
     }
@@ -189,6 +216,41 @@ export default function WithdrawPage() {
                     </p>
                   )}
                 </div>
+
+                {/* Pix Specific Fields */}
+                {selectedMethod === 'pix' && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-4">
+                    <div className="md:col-span-1">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Key Type
+                      </label>
+                      <select
+                        value={pixKeyType}
+                        onChange={(e) => setPixKeyType(e.target.value)}
+                        className="w-full px-4 py-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-yellow-400"
+                      >
+                        {PIX_KEY_TYPES.map((type) => (
+                          <option key={type.id} value={type.id} className="bg-gray-800">
+                            {type.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
+                        Pix Key
+                      </label>
+                      <input
+                        type="text"
+                        value={pixKey}
+                        onChange={(e) => setPixKey(e.target.value)}
+                        required
+                        placeholder="Enter your Pix key"
+                        className="w-full px-4 py-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Quick Amount Buttons */}
                 <div>

@@ -199,3 +199,89 @@ export const createWithdrawal = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Withdrawal failed', error });
   }
 };
+
+export const createPixWithdrawal = async (req: AuthRequest, res: Response) => {
+  try {
+    const { amount, pixKey, pixKeyType } = req.body;
+    const numericAmount = parseFloat(amount);
+
+    if (!numericAmount || numericAmount < 20) {
+      return res.status(400).json({ message: 'Minimum withdrawal is 20 BRL' });
+    }
+
+    if (!pixKey || !pixKeyType) {
+      return res.status(400).json({ message: 'Pix Key and Type are required' });
+    }
+
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Security check: KYC
+    if (user.kycStatus !== 'verified') {
+      return res.status(400).json({ message: 'KYC verification required for withdrawals' });
+    }
+
+    if (user.balance < numericAmount) {
+      return res.status(400).json({ message: 'Insufficient balance' });
+    }
+
+    const balanceBefore = user.balance;
+
+    // 1. Atomic balance deduction
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.userId, balance: { $gte: numericAmount } },
+      { $inc: { balance: -numericAmount } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(400).json({ message: 'Insufficient balance or concurrent transaction lock' });
+    }
+
+    // 2. Create pending transaction
+    const transaction = new Transaction({
+      userId: req.userId,
+      type: 'withdrawal',
+      amount: numericAmount,
+      status: 'pending',
+      paymentMethod: 'pix',
+      balanceBefore,
+      balanceAfter: updatedUser.balance,
+      description: `Pix Payout to ${pixKeyType}: ${pixKey}`,
+    });
+
+    await transaction.save();
+
+    // 3. Call PixGo Payout API
+    try {
+      const pixgoResponse = await pixgoService.createPayout(
+        numericAmount,
+        pixKey,
+        pixKeyType,
+        transaction._id.toString()
+      );
+
+      res.status(201).json({
+        message: 'Withdrawal processed',
+        transactionId: transaction._id,
+        newBalance: updatedUser.balance,
+        pixgoStatus: pixgoResponse.status
+      });
+    } catch (payoutError) {
+      console.error('PixGo Payout API error:', payoutError);
+      // Note: In a production app, if the external API fails, we might want to refund the user 
+      // or mark for manual review. For now, we'll keep it pending for manual correction.
+      res.status(201).json({
+        message: 'Withdrawal request recorded (API Delay)',
+        transactionId: transaction._id,
+        newBalance: updatedUser.balance,
+        warning: 'The request was saved but execution via PixGo failed. Our support will review it.'
+      });
+    }
+  } catch (error) {
+    console.error('Pix withdrawal error:', error);
+    res.status(500).json({ message: 'Pix withdrawal failed', error: error instanceof Error ? error.message : error });
+  }
+};
